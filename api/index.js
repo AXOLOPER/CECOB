@@ -25,7 +25,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-let api = process.env.API||"";
+let api = process.env.API||"/api";
 
 app.get(api+"/", async (req, res) => {
   return res.json({ message: "Hello, World ✌️" });
