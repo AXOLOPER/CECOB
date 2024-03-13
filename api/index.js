@@ -18,6 +18,7 @@ const grupoRoute = require('./routes/grupo.routes');
 const turnoRoute = require('./routes/turno.routes');
 
 const Usuario = require('./models/usuarios.model');
+const { PORT, DBLINK, API } = require("./config");
 
 var app = express();
 app.use(cors());
@@ -25,7 +26,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-let api = process.env.API||"/api";
+let api = API||"";
 
 app.get(api+"/", async (req, res) => {
   return res.json({ message: "Hello, World ✌️" });
@@ -43,7 +44,6 @@ app.use(api+'/periodos',periodoRoute);
 app.use(api+'/grados',gradoRoute);
 app.use(api+'/grupos',grupoRoute);
 app.use(api+'/turnos',turnoRoute);
-
 
 // The secret should be an unguessable long string (you can use a password generator for this!)
 const JWT_SECRET ="goK!pusp6ThEdURUtRenOwUhAsWUCLheBazl!uJLPlS8EbreWLdrupIwabRAsiBu";
@@ -83,15 +83,16 @@ var allowCrossDomain = function(req, res, next) {
   next();
 }
 
-const MONGO = process.env.MONGO||"mongodb://127.0.0.1:27017/URADB?authSource=admin";
+const MONGO = DBLINK||"mongodb://127.0.0.1:27017/URADB?authSource=admin";
 
 console.log(MONGO);
+console.log('api: '+api);
 
 const start = async () => {
   try {
     await mongoose.connect(MONGO);
     app.use(allowCrossDomain);
-    app.listen(3000, () => console.log("Server started on port 3000"));
+    app.listen(PORT, () => console.log(`Server started on port =${PORT}`));
   } catch (error) {
     console.error(error);
     process.exit(1);

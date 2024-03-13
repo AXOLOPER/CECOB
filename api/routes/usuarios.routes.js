@@ -8,7 +8,7 @@ const usuarioController = require("../controllers/usuarios.controller");
 api.post("/",md_auth.ensureAuth,usuarioController.registrar);
 
 // Ruta para consultar usuarios
-api.get("/",md_auth.ensureAuth,usuarioController.verAll);
+api.get("/",usuarioController.verAll);
 
 // Consulta de usuario por id
 api.get("/:id",md_auth.ensureAuth,usuarioController.ver1);

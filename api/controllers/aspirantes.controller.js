@@ -40,7 +40,7 @@ async function readAll  (req, res) {
 
 async function read1(req, res){
   const { id } = req.params;
-  const Find = await Modelo.findOne({CURP:id})
+  const Find = await Modelo.findOne({_id:id})
   .populate("CANDIDATO")
   .populate("CARRERA")
   .populate("GRADO")

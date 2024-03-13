@@ -8,7 +8,7 @@ const api = express.Router();
     api.post("/",md_auth.ensureAuth,Controller.create);
 
     // Ruta de Consulta inicial
-    api.get("/",md_auth.ensureAuth,Controller.readAll);
+    api.get("/",Controller.readAll);
 
     // Ruta de Consulta particular
     api.get("/:id",md_auth.ensureAuth,Controller.read1);

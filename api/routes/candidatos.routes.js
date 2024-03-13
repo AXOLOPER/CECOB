@@ -5,7 +5,17 @@ const Controller = require("../controllers/candidatos.controller");
 const api = express.Router();
 
     // Ruta de Registro
-    api.post("/",md_auth.ensureAuth,Controller.create);
+    api.post("/", md_auth.ensureAuth, Controller.create);
+    
+    // Ruta de Inscripcion
+    api.post("/inscripcion",Controller.Inscripcion);
+    
+    
+    // Ruta de HTML->PDF
+    api.get("/pdf/:CURP",Controller.Acuerdo);
+    
+    // Ruta de PDF->Print
+    api.get("/pdfs/:CURP",Controller.Print);
 
     // Ruta de Consulta inicial
     api.get("/",md_auth.ensureAuth,Controller.readAll);
