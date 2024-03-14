@@ -18,7 +18,7 @@ const grupoRoute = require('./routes/grupo.routes');
 const turnoRoute = require('./routes/turno.routes');
 
 const Usuario = require('./models/usuarios.model');
-const { PORT, DBLINK, API } = require("./config");
+const { PORT, DBLINK, API, HOST, APIHOST } = require("./config");
 
 var app = express();
 app.use(cors());
@@ -87,7 +87,8 @@ const MONGO = DBLINK||"mongodb://127.0.0.1:27017/URADB?authSource=admin";
 
 console.log(MONGO);
 console.log('api: '+api);
-
+console.log('HOST: ' + HOST);
+console.log('APIHOST: ' + APIHOST);
 const start = async () => {
   try {
     await mongoose.connect(MONGO);
