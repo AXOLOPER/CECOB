@@ -54,7 +54,7 @@ async function Inscripcion(req, res) {
               let PDF = await Print(req, res, RES.CURP);
             console.log("PDF: " + PDF);
             res.set({ 'Content-Type': 'application/pdf' });
-            res.status(200).sendFile(PDF);
+            return res.status(200).sendFile(PDF);
           } catch (error) {
             console.log("Error al generar el PDF: " + error);
           }
@@ -65,7 +65,7 @@ async function Inscripcion(req, res) {
     ) {
       console.log("Error: al Inscribri al alumno...: "+error);
       session.abortTransaction();
-      res.status(500).json({ error: 'Ocurrió un error al realizar la inscripcion: '+ error });
+      return res.status(500).json({ error: 'Ocurrió un error al realizar la inscripcion: '+ error });
     }
     
     // const NewReg = new Modelo(req.body);
@@ -76,7 +76,7 @@ async function Inscripcion(req, res) {
     // res.status(201).json(NewReg);
   } catch (error) {
     console.error('Error al guardar el prospecto:', error);
-    res.status(500).json({ error: 'Ocurrió un error al guardar el prospecto' });
+    return res.status(500).json({ error: 'Ocurrió un error al guardar el prospecto' });
   }
 };
 
