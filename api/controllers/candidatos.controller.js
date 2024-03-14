@@ -53,8 +53,8 @@ async function Inscripcion(req, res) {
               
               let PDF = await Print(req, res, RES.CURP);
             console.log("PDF: " + PDF);
-            res.set({ 'Content-Type': 'application/pdf' });
-            return res.status(200).sendFile(PDF);
+            res.contentType("application/pdf");
+            return res.send(PDF);
           } catch (error) {
             console.log("Error al generar el PDF: " + error);
           }
