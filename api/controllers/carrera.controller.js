@@ -8,7 +8,7 @@ async function create(req, res) {
     const nuevo = new Modelo(req.body);
     const saved = await nuevo.save();
   if(saved){
-      BitacoraController.registrar("registró "+text+" "+saved.Nombre+" con id: "+saved.id);
+      BitacoraController.registrar("registró "+text+" "+saved.Nombre+" con id: "+saved.id,req.usuario._id);
     }
     res.status(201).json(saved);
   } catch (error) {

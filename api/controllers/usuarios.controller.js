@@ -35,7 +35,12 @@ async function registrar(req, res){
     return res.status(201).json({ message: "Usuario registrado exitosamente" });
 }
 
-async function verAll(req,res){
+async function verAll(req, res) {
+    try {
+        if (!req.usuario) {   
+            return res.status(403).json({ message: "No ha iniciado sesion" });
+        }
+    }catch(er){}
     if(!req.usuario.privilegios.admin.usuarios.read){
         return res.status(401).json({ message: "No tiene permiso para realizar esa operacion!" });
     }

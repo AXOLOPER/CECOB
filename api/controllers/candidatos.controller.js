@@ -540,7 +540,10 @@ async function Acuerdo(req, res) {
   };
   
   async function Print (req,res,CURP){
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({
+      headless: true,
+      args: ['--no-sandbox']
+    });
     const page = await browser.newPage();
     page.on('pageerror',(err)=>{
       console.log("PageError:",err)
