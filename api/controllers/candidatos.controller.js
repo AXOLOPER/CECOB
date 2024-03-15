@@ -553,7 +553,7 @@ async function Acuerdo(req, res) {
         height: 1300,
         deviceScaleFactor: 1,
     });  
-    let pdfruta = HOST+"/candidatos/pdf/" + CURP;
+    let pdfruta = HOST+"/api/candidatos/pdf/" + CURP;
     console.log(pdfruta)
     const npage = await page.goto(pdfruta, {waitUntil: "domcontentloaded",});
     const status = npage.status();
