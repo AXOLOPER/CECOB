@@ -54,7 +54,7 @@ async function Inscripcion(req, res) {
               let PDF = await Print(req, res, RES.CURP);
             console.log("PDF: " + PDF);
             res.contentType("application/pdf");
-            return res.send(PDF);
+            return res.sendFile(PDF);
           } catch (error) {
             console.log("Error al generar el PDF: " + error);
           }
@@ -539,43 +539,48 @@ async function Acuerdo(req, res) {
     res.status(200).sendFile(path.join(__dirname,"..","/PDF/credencial.html"));
   };
   
-  async function Print (req,res,CURP){
-    const browser = await puppeteer.launch({
-      headless: true,
-      args: ['--no-sandbox']
-    });
-    const page = await browser.newPage();
-    page.on('pageerror',(err)=>{
-      console.log("PageError:",err)
-    });
-    await page.setViewport({
-        width: 1000,
-        height: 1300,
-        deviceScaleFactor: 1,
-    });  
-    let pdfruta = HOST+"/api/candidatos/pdf/" + CURP;
-    console.log(pdfruta)
-    const npage = await page.goto(pdfruta, {waitUntil: "domcontentloaded",});
-    const status = npage.status();
+async function Print(req, res, CURP) {
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: ['--no-sandbox']
+  });
+  const page = await browser.newPage();
+  page.on('pageerror', (err) => {
+    console.log("PageError:", err)
+  });
+  await page.setViewport({
+    width: 1000,
+    height: 1300,
+    deviceScaleFactor: 1,
+  });
+  let pdfruta = HOST + "/api/candidatos/pdf/" + CURP;
+  console.log(pdfruta)
+  const npage = await page.goto(pdfruta, { waitUntil: "domcontentloaded", });
+  const status = npage.status();
   
-    if(status==404){
-      return res.status(404).send("Alumno no encontrado!");
-    }
+  if (status == 404) {
+    return res.status(404).send("Alumno no encontrado!");
+  }
   
-    if(status==403){
-      return res.status(403).send("Datos del alumno incompletos!");
-    }
+  if (status == 403) {
+    return res.status(403).send("Datos del alumno incompletos!");
+  }
   
-    const imgs = await page.$$eval('.imagen img', images => images.map(i => i.src))
-    if(imgs.length==0){
-      return res.status(500).send("Error desconocido, comuniquese con el administrador!");
-    }
-    await page.screenshot({ path: path.join(__dirname, '..' + "/PNGS/" + CURP + ".png") });
-    
-    const pdf = await page.pdf({ format: 'letter',path: path.join(__dirname, '..' + "/PDFS/" + CURP + ".pdf")});
+  const imgs = await page.$$eval('.imagen img', images => images.map(i => i.src))
+  if (imgs.length == 0) {
+    return res.status(500).send("Error desconocido, comuniquese con el administrador!");
+  }
+
+  const PNGPATH = path.join(__dirname, '..' + "/PNGS/" + CURP + ".png");
+  console.log(PNGPATH);
+  await page.screenshot({ path: PNGPATH });
+  const PDFPATH = path.join(__dirname, '..' + "/PDFS/" + CURP + ".pdf");
+  console.log(PDFPATH)
+  const pdf = await page.pdf({ format: 'letter', path: PDFPATH });
+  pdf.save(PDFPATH);
     await browser.close();
 
-    return path.join(__dirname, '..' + "/PDFS/" + CURP + ".pdf");
+    return PDFPATH;
   };
 
 module.exports={
