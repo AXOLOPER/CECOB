@@ -11,8 +11,8 @@ async function create(req, res) {
   try {
     const NewReg = new Modelo(req.body);
     await NewReg.save();
-    if(NewReg){
-      BitacoraController.registrar("registro al prospecto con id: "+NewReg.id);
+    if (NewReg) {
+      BitacoraController.registrar("registro al prospecto con id: " + NewReg.id);
     }
     res.status(201).json(NewReg);
   } catch (error) {
@@ -85,34 +85,34 @@ async function readAll  (req, res) {
   return res.status(200).json(all);
 }
 
-async function read1(req, res){
+async function read1(req, res) {
   const { id } = req.params;
   const Find = await Modelo.findById(id);
   return res.status(200).json(Find);
 }
 
-async function update(req, res){
+async function update(req, res) {
   const { _id } = req.body;
-  const updated = await Modelo.findByIdAndUpdate(_id,req.body);
-  if(updated){
-    BitacoraController.registrar("registro al aspirante con id: "+updated.id,req.usuario.id);
+  const updated = await Modelo.findByIdAndUpdate(_id, req.body);
+  if (updated) {
+    BitacoraController.registrar("registro al aspirante con id: " + updated.id, req.usuario.id);
   }
   return res.status(200).json(updated);
 }
 
-async function del(req, res){
+async function del(req, res) {
   const { id } = req.params;
   const user = await Modelo.findById(id);
-  const deleted = await Modelo.findByIdAndUpdate(id,{Status:!user.Status});
-  if(deleted){
-    BitacoraController.registrar("registro al aspirante con id: "+deleted.id,req.usuario.id);
+  const deleted = await Modelo.findByIdAndUpdate(id, { Status: !user.Status });
+  if (deleted) {
+    BitacoraController.registrar("registro al aspirante con id: " + deleted.id, req.usuario.id);
   }
   return res.status(200).json(deleted);
 }
 
 const { default: puppeteer } = require('puppeteer');
 var fs = require('fs');
-const { HOST, PORT } = require('../config');
+const { APIHOST } = require('../config');
 
 async function Acuerdo(req, res) {
   const { CURP } = req.params;
@@ -553,7 +553,7 @@ async function Print(req, res, CURP) {
     height: 1300,
     deviceScaleFactor: 1,
   });
-  let pdfruta = HOST + "/api/candidatos/pdf/" + CURP;
+  let pdfruta = APIHOST + "/candidatos/pdf/" + CURP;
   console.log(pdfruta)
   const npage = await page.goto(pdfruta, { waitUntil: "domcontentloaded", });
   const status = npage.status();

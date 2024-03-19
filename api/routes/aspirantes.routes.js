@@ -5,7 +5,10 @@ const Controller = require("../controllers/aspirantes.controller");
 const api = express.Router();
 
     // Ruta de Registro
-    api.post("/",md_auth.ensureAuth,Controller.create);
+        api.post("/", md_auth.ensureAuth, Controller.create);
+    
+    // Ruta de Registro
+    api.post("/PDF",md_auth.ensureAuth,Controller.sendPDF);
 
     // Ruta de Consulta inicial
     api.get("/",md_auth.ensureAuth,Controller.readAll);

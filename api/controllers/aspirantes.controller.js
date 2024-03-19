@@ -1,6 +1,7 @@
 const Modelo = require('../models/aspirantes.model');
 const Candidato = require('../models/candidatos.model');
 const BitacoraController = require("./bitacora.controller");
+const path = require('path');
 
 async function create(req, res) {
   try {
@@ -51,6 +52,14 @@ async function read1(req, res){
   return res.status(200).json(Find);
 }
 
+async function sendPDF(req, res) {
+  const CURP = req.body.CURP;
+  const PDFPATH = path.join(__dirname, '..' + "/PDFS/" + CURP + ".pdf");
+  console.log(PDFPATH)
+
+  return res.status(200).sendFile(PDFPATH);
+  };
+
 async function update(req, res){
   const { _id } = req.body;
   const updated = await Modelo.findByIdAndUpdate(_id,req.body);
@@ -75,5 +84,6 @@ module.exports={
   readAll,
   read1,
   update,
-  del
+  del,
+  sendPDF
 }

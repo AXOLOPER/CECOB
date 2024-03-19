@@ -1,6 +1,4 @@
-node_modules/
-
-/Libros
+/node_modules
 
 /PDFS/*
 /PNGS/*
