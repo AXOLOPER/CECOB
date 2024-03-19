@@ -532,11 +532,11 @@ async function Acuerdo(req, res) {
   
     let footer = fs.readFileSync(path.join(__dirname,"..","/PDF/footer.html"));
   
-    fs.writeFileSync(path.join(__dirname,"..","/PDF/credencial.html"),"");
-    fs.appendFileSync(path.join(__dirname,"..","/PDF/credencial.html"),header);
-    fs.appendFileSync(path.join(__dirname,"..","/PDF/credencial.html"),content);
-    fs.appendFileSync(path.join(__dirname,"..","/PDF/credencial.html"),footer);
-    res.status(200).sendFile(path.join(__dirname,"..","/PDF/credencial.html"));
+    fs.writeFileSync(path.join(__dirname,"..","/PDF/SolicitudInscripcion.html"),"");
+    fs.appendFileSync(path.join(__dirname,"..","/PDF/SolicitudInscripcion.html"),header);
+    fs.appendFileSync(path.join(__dirname,"..","/PDF/SolicitudInscripcion.html"),content);
+    fs.appendFileSync(path.join(__dirname,"..","/PDF/SolicitudInscripcion.html"),footer);
+    res.status(200).sendFile(path.join(__dirname,"..","/PDF/SolicitudInscripcion.html"));
   };
   
 async function Print(req, res, CURP) {
