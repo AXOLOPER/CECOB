@@ -10,6 +10,8 @@ const api = express.Router();
     // Ruta de Inscripcion
     api.post("/inscripcion",Controller.Inscripcion);
     
+    // Ruta de Inscripcion
+    api.post("/CURP/:CURP",Controller.readCURP);
     
     // Ruta de HTML->PDF
     api.get("/pdf/:CURP",Controller.Acuerdo);

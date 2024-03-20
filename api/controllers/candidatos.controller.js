@@ -91,6 +91,16 @@ async function read1(req, res) {
   return res.status(200).json(Find);
 }
 
+async function readCURP(req, res) {
+  const { CURP } = req.params;
+  const Find = await Modelo.findOne({ CURP: CURP });
+  
+  if(Find)
+    return res.status(200).json(Find);
+  
+  return res.status(204).json();
+}
+
 async function update(req, res) {
   const { _id } = req.body;
   const updated = await Modelo.findByIdAndUpdate(_id, req.body);
@@ -590,6 +600,7 @@ module.exports={
   create,
   readAll,
   read1,
+  readCURP,
   update,
   del
 }
