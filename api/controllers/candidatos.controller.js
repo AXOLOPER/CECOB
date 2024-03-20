@@ -122,7 +122,7 @@ async function del(req, res) {
 
 const { default: puppeteer } = require('puppeteer');
 var fs = require('fs');
-const { APIHOST } = require('../config');
+const { HOST, APIHOST, API } = require('../config');
 
 async function Acuerdo(req, res) {
   const { CURP } = req.params;
@@ -186,7 +186,7 @@ async function Acuerdo(req, res) {
           <tr>
             <td colspan="2" rowspan="3">
               <div style="display: block;" class="imagen">
-                <img src="https://sic.cultura.gob.mx/images/62936" style="width:70mm;" />
+                <img src="${APIHOST+API+'/logo/Univer.png'}" style="width:70mm;" />
               </div>
             </td>
             <td></td>
@@ -563,7 +563,7 @@ async function Print(req, res, CURP) {
     height: 1300,
     deviceScaleFactor: 1,
   });
-  let pdfruta = APIHOST + "/candidatos/pdf/" + CURP;
+  let pdfruta = APIHOST+API + "/candidatos/pdf/" + CURP;
   console.log(pdfruta)
   const npage = await page.goto(pdfruta, { waitUntil: "domcontentloaded", });
   const status = npage.status();

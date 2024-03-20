@@ -19,6 +19,7 @@ const turnoRoute = require('./routes/turno.routes');
 
 const Usuario = require('./models/usuarios.model');
 const { PORT, DBLINK, API, HOST, APIHOST } = require("./config");
+const path = require('path');
 
 var app = express();
 app.use(cors());
@@ -74,6 +75,20 @@ app.post(api+"/authenticate",async (req, res) => {
     token: jwt.sign({exp: Math.floor(Date.now() / 1000) + (60 * 60 * 10),data:{ user: U.Usuario, privilegios:U.privilegios, id:U._id }}, JWT_SECRET),
     message: `${usuario} has loggedin successfully ..`
   });
+});
+
+
+// Ruta de login
+app.get(api + "/logo/:logo", async (req, res) => {
+  
+  var fs = require('fs');
+  const { logo } = req.params;
+  const FILEPATH = path.join(__dirname, "/logos/", logo);
+  if (fs.existsSync(FILEPATH)) {
+    return res.status(200).sendFile(FILEPATH);
+  } else {
+    return res.status(404).json({Message:"Logo no encontrado"});
+  }
 });
 
 var allowCrossDomain = function(req, res, next) {
