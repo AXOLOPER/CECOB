@@ -1,6 +1,7 @@
 const Modelo = require('../models/aspirantes.model');
 const Candidato = require('../models/candidatos.model');
 const BitacoraController = require("./bitacora.controller");
+const CandidatosController = require("./candidatos.controller");
 const path = require('path');
 
 async function create(req, res) {
@@ -55,10 +56,16 @@ async function read1(req, res){
 async function sendPDF(req, res) {
   const CURP = req.body.CURP;
   const PDFPATH = path.join(__dirname, '..' + "/PDFS/" + CURP + ".pdf");
-  console.log(PDFPATH)
+  console.log(PDFPATH);
+  
+  var fs = require('fs');
+
+  if (!fs.existsSync(PDFPATH)) {
+    return await CandidatosController.Print(req,res,CURP);
+  }
 
   return res.status(200).sendFile(PDFPATH);
-  };
+};
 
 async function update(req, res){
   const { _id } = req.body;
