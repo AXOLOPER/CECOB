@@ -5,9 +5,10 @@ const aspirantesSchema = new mongoose.Schema({
   CANDIDATO: { type: mongoose.Types.ObjectId, required: true, ref: "Candidatos"},
   CARRERA: { type: mongoose.Types.ObjectId, required: true, ref:"Carrera" },
   GRADO: { type: mongoose.Types.ObjectId, required: true, ref:"Grado" },
-  GRUPO: { type: mongoose.Types.ObjectId, required: true, ref:"Grupo" },
+  GRUPO: { type: mongoose.Types.ObjectId, ref:"Grupo" },
   TURNO: { type: mongoose.Types.ObjectId, required: true, ref:"Turno" },
   PERIODO: { type: mongoose.Types.ObjectId, required: true, ref:"Periodo" },
+  PLANTEL: { type: mongoose.Types.ObjectId, ref:"Plantel" },
   Status: { type: Boolean, default: true },
 },{timestamps:true});
 

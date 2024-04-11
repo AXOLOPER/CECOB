@@ -16,9 +16,6 @@ const api = express.Router();
     // Ruta de HTML->PDF
     api.get("/pdf/:CURP", Controller.Acuerdo);
     
-    // Ruta de HTML->PDF
-    api.get("/pdf2/:CURP", Controller.AcuerdoII);
-    
     // Ruta de PDF->Print
     api.get("/pdfs/:CURP",Controller.Print);
 

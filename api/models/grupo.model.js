@@ -1,7 +1,9 @@
 const mongoose = require('mongoose');
 
 const grupoSchema = new mongoose.Schema({
-  Nombre:{type:String},
+  Nombre: { type: String },
+  Numero: { type: Number },
+  Simbolo: { type: String },
   Status:{type:Boolean, default:true},
 });
 

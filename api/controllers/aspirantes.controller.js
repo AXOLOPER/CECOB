@@ -6,7 +6,7 @@ const path = require('path');
 
 async function create(req, res) {
   try {
-    const {CURP,CARRERA,GRADO,GRUPO,TURNO,PERIODO} = req.body;
+    const {CURP,CARRERA,GRADO,GRUPO,TURNO,PERIODO,PLANTEL} = req.body;
     let candidato = await Candidato.findOne({CURP:CURP});
     const NewReg = new Modelo();
     NewReg.CURP = CURP;
@@ -16,6 +16,7 @@ async function create(req, res) {
     NewReg.GRUPO = GRUPO;
     NewReg.TURNO = TURNO;
     NewReg.PERIODO = PERIODO;
+    NewReg.PLANTEL = PLANTEL;
     const registered = await NewReg.save();
     if(registered){
       BitacoraController.registrar("registro al aspirante con id: "+registered._id,req.usuario.id);
@@ -36,6 +37,7 @@ async function readAll  (req, res) {
   .populate("GRUPO")
   .populate("TURNO")
   .populate("PERIODO")
+  .populate("PLANTEL")
   .sort("CARRERA.Abreviatura");
   return res.status(200).json(all);
 }
@@ -49,6 +51,7 @@ async function read1(req, res){
   .populate("GRUPO")
   .populate("TURNO")
   .populate("PERIODO")
+  .populate("PLANTEL")
   .sort("CARRERA.Abreviatura");
   return res.status(200).json(Find);
 }
@@ -61,7 +64,7 @@ async function sendPDF(req, res) {
   var fs = require('fs');
 
   if (!fs.existsSync(PDFPATH)) {
-    return await CandidatosController.Print(req,res,CURP);
+    await CandidatosController.Print(req,res,CURP);
   }
 
   return res.status(200).sendFile(PDFPATH);

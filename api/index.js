@@ -16,6 +16,7 @@ const periodoRoute = require('./routes/periodo.routes');
 const gradoRoute = require('./routes/grado.routes');
 const grupoRoute = require('./routes/grupo.routes');
 const turnoRoute = require('./routes/turno.routes');
+const plantelRoute = require('./routes/plantel.routes');
 
 const Usuario = require('./models/usuarios.model');
 const { PORT, DBLINK, API, HOST, APIHOST } = require("./config");
@@ -45,6 +46,7 @@ app.use(api+'/periodos',periodoRoute);
 app.use(api+'/grados',gradoRoute);
 app.use(api+'/grupos',grupoRoute);
 app.use(api+'/turnos',turnoRoute);
+app.use(api+'/planteles',plantelRoute);
 
 // The secret should be an unguessable long string (you can use a password generator for this!)
 const JWT_SECRET ="goK!pusp6ThEdURUtRenOwUhAsWUCLheBazl!uJLPlS8EbreWLdrupIwabRAsiBu";

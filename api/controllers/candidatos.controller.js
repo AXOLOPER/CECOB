@@ -33,6 +33,7 @@ async function Inscripcion(req, res) {
       let AspiranteD = new Aspirante(req.body);
       let NCandidato = await Candidato.save();
       AspiranteD.CANDIDATO = NCandidato.id;
+      AspiranteD.GRUPO = AspiranteD.GRUPO == '' ? undefined : AspiranteD.GRUPO;
       let NAspirante = await AspiranteD.save();
 
       if (NAspirante.id) {
@@ -65,6 +66,7 @@ async function Inscripcion(req, res) {
     ) {
       console.log("Error: al Inscribri al alumno...: "+error);
       session.abortTransaction();
+      session.endSession();
       return res.status(500).json({ error: 'Ocurrió un error al realizar la inscripcion: '+ error });
     }
     
@@ -133,7 +135,8 @@ async function Acuerdo(req, res) {
                 .populate("GRADO")
                 .populate("GRUPO")
                 .populate("TURNO")
-                .populate("PERIODO");
+                .populate("PERIODO")
+                .populate("PLANTEL");
   
     const name = "SOLICITUD DE INSCRIPCION";
   
@@ -165,7 +168,19 @@ async function Acuerdo(req, res) {
   
     if(!Status){
       return res.status(403).send("Datos Incompletos");
-    }
+  }
+
+  var options = {
+        year: "numeric",
+        month: "2-digit",
+        day: "numeric",
+        format:"yyyy/MM/dd"
+  };
+  
+  function TransformDate(DATE){
+    let FDATE = new Date(DATE).toLocaleString("es-ES",options);
+    return FDATE;
+  }
   
     let header = fs.readFileSync(path.join(__dirname,"..","/PDF/header.html"));
     let content = `
@@ -208,7 +223,7 @@ async function Acuerdo(req, res) {
           <tr></tr>
           <tr>
             <td colspan="2">
-              FECHA: ${new Date(createdAt).toLocaleDateString()}
+              FECHA: ${(new Date(createdAt).toLocaleDateString("es-MX"))}
             </td>
             <td></td>
             <td></td>
@@ -249,7 +264,7 @@ async function Acuerdo(req, res) {
             <td></td>
             <td></td>
             <td></td>
-            <td colspan="4">Grupo: ${GRUPO.Nombre || "Grupo de prueba"}</td>
+            <td colspan="4">Grupo: ${GRUPO?.Nombre || ""}</td>
             <td></td>
             <td></td>
             <td></td>
@@ -266,12 +281,12 @@ async function Acuerdo(req, res) {
             <td></td>
           </tr>
           <tr>
-            <td colspan="5">Plantel: ${PLANTEL?.Nombre || "Plantel de prueba"}</td>
+            <td colspan="5">Plantel: ${PLANTEL?.Nombre || ""}</td>
             <td></td>
             <td></td>
             <td></td>
             <td></td>
-            <td colspan="4">Matricula: ${MATRICULA || "MATRICULA de prueba"}</td>
+            <td colspan="4">Matricula: ${MATRICULA || ""}</td>
             <td></td>
             <td></td>
             <td></td>
@@ -375,7 +390,7 @@ async function Acuerdo(req, res) {
           <td></td>
           <td></td>
           <td colspan="4">
-            Fecha de Nacimiento: ${new Date(CANDIDATO.FNac).toLocaleDateString()}
+            Fecha de Nacimiento: ${(new Date(CANDIDATO.FNac).toLocaleDateString("eu-ES"))}
           </td>
           <td></td>
           <td></td>
@@ -563,16 +578,16 @@ async function Acuerdo(req, res) {
               </div>
             </td>
             <td></td>
-            <td colspan="5" rowspan="3">
+            <td colspan="4" rowspan="3">
               CARTA COMPROMISO
             </td>
             <td></td>
             <td></td>
             <td></td>
-            <td></td>
-            <td colspan="2" rowspan="3">
-              FECHA:<br/>${new Date(createdAt).toLocaleDateString()}
+            <td colspan="3" rowspan="3">
+              FECHA:<br/>${(new Date(createdAt).toLocaleDateString("es-MX"))}
             </td>
+            <td></td>
             <td></td>
           </tr>
           <tr></tr>
@@ -655,38 +670,23 @@ async function Acuerdo(req, res) {
       <fieldset>
         <table>
           <tr>
-            <td colspan="3" class="center">
+            <td class="center">
               ${CANDIDATO.ApellidoP}<br>Primer Apellido</td>
-            <td></td>
-            <td></td>
-            <td colspan="3" class="center">
+            <td class="center">
               ${CANDIDATO.ApellidoM}<br>Segundo Apellido</td>
-            <td></td>
-            <td></td>
-            <td colspan="3" class="center">
+            <td class="center">
               ${CANDIDATO.Nombres}<br>Nombre</td>
-            <td></td>
-            <td></td>
           </tr>
           <tr>
-            <td colspan="6" class="center">Programa de estudios:${CARRERA.Nombre || "Carrera de prueba"}</td>
+            <td class="center">Programa de estudios:<br/>${CARRERA.Nombre || "Carrera de prueba"}</td>
             <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td colspan="3" class="center">Turno:${TURNO.Nombre || "Turno de prueba"}</td>
-            <td></td>
-            <td></td>
+            <td class="center">Turno:${TURNO.Nombre || "Turno de prueba"}</td>
           </tr>
+          <tr><td>&nbsp;</td><tr/>
           <tr>
-            <td colspan="3" class="center">Municipio:<br>&nbsp;</td>
-            <td></td>
-            <td></td>
-            <td colspan="3" class="center">Estado:<br>&nbsp;</td>
-            <td></td>
-            <td></td>
-            <td colspan="3" class="center">____________________<br>FIRMA DEL SOLICITANTE</td>
+            <td class="center">____________________<br>MUNICIPIO</td>
+            <td class="center">____________________<br>ESTADO</td>
+            <td class="center">____________________<br>FIRMA DEL SOLICITANTE</td>
             <td></td>
             <td></td>
           </tr>
@@ -706,221 +706,6 @@ async function Acuerdo(req, res) {
     fs.appendFileSync(path.join(__dirname,"..","/PDF/SolicitudInscripcion.html"),footer);
     
     res.status(200).sendFile(path.join(__dirname,"..","/PDF/SolicitudInscripcion.html"));
-};
-
-async function AcuerdoII(req, res) {
-    const { CURP } = req.params;
-
-    const Data = await Aspirante.findOne({ CURP: CURP })
-                .populate("CANDIDATO")
-                .populate("CARRERA")
-                .populate("GRADO")
-                .populate("GRUPO")
-                .populate("TURNO")
-                .populate("PERIODO");
-  
-    const name = "CARTA COMPROMISO";
-  
-    const {
-      createdAt,
-      CARRERA,
-      GRADO,
-      GRUPO,
-      TURNO,
-      PERIODO,
-      MATRICULA,
-      CANDIDATO,
-      Status
-    } = Data;
-
-    PLANTEL = Data.PLANTEL? Data.PLANTEL:{ Nombre: "Plantel de prueba" };
-    if (!Data) { 
-      return;
-    }
-    var today = createdAt ? new Date(createdAt) : new Date();
-    var birthday = CANDIDATO.FNac ? new Date(CANDIDATO.FNac) : new Date();
-    //Restamos los años
-    let años = today.getFullYear() - birthday.getFullYear();
-    // Si no ha llegado su cumpleaños le restamos el año por cumplir (Los meses en Date empiezan en 0, por eso tenemos que sumar 1)
-    if (birthday.getMonth() > (today.getMonth()) || birthday.getDay() > today.getDay())
-        años--;
-    const Edad = años;
-  
-    if(!Status){
-      return res.status(403).send("Datos Incompletos");
-    }
-  
-    let header = fs.readFileSync(path.join(__dirname,"..","/PDF/header.html"));
-    let content = `
-      <div  class="hoja">
-      <!--<mat-grid-list cols="9" rowHeight="5rem"> -->
-      <fieldset class="fhide">
-        <table>
-          <tr>
-            <th><span></span></th>
-            <th><span></span></th>
-            <th><span></span></th>
-            <th><span></span></th>
-            <th><span></span></th>
-            <th><span></span></th>
-            <th><span></span></th>
-            <th><span></span></th>
-            <th><span></span></th>
-          </tr>
-          <tr>
-            <td colspan="2" rowspan="3">
-              <div style="display: block;" class="imagen">
-                <img src="${APIHOST+API+'/logo/Univer.png'}" style="width:70mm;" />
-              </div>
-            </td>
-            <td></td>
-            <td colspan="5" rowspan="5">
-              CARTA COMPROMISO
-            </td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td colspan="2" rowspan="5">
-              FECHA: ${new Date(createdAt).toLocaleDateString()}
-            </td>
-            <td></td>
-          </tr>
-          <tr></tr>
-          <tr></tr>
-          <tr>
-            <td colspan="9">
-              <ul>
-                <li>
-                  Conozco que la ley impone como condición para inciciar mis estudios de grado superior
-                  haber cubierto en su totalidad el plan de estudios del nivel anterior al que deseo ingresar.
-                </li>
-                <li>
-                  Me comprometo a entregar la documentación solicitada para mi inscipción en la fecha
-                  establecida por Control Escolar.
-                </li>
-                <li>
-                  En caso de no entregar dichos documentos, se procederá con mi baja del plan de estudios.
-                </li>
-                <li>
-                  Los documentos originales que entregué para mi inscripción me serán devueltos una vez concluidos mis estudios.
-                </li>
-                <li>
-                  Soy responsable de la validez de mis documentos entregados en lo que corresponde a su autenticidad,
-                  eximiendo de toda responsabilidad a la institución.
-                </li>
-                <li>
-                  Que en el supuesto de que alguno de los documentos que presenté para mi inscripción sea dictaminado como APÓCRIFO,
-                  la institución realizará mi baja administrativa quedando sin validez los documentos realizados a partir de dichos
-                  documentos.
-                </li>
-                <li>
-                  Que en caso de presentarse el punto 6, mis estudios quedan sin validez oficial y la institución no me entregará
-                  ningún documento
-                  que acredite dichos estudios, ni me reembolsará por los pagos o cuotas realizadas.
-                </li>
-                <li>
-                  Me comprometo a realizar puntualmente mis pagos de inscripcióin, reisncripción y parcialidades mensuales,
-                  así como los pagos de los gastos administrativos vigentes a la fecha de impuntualidad, establecidos por la
-                  Institución correspondiente al atraso en el pago de las cuotas autorizadas.
-                </li>
-                <li>
-                  Me comprometo a realizar puntualmente mis pagos por concepto de rerminación de estudios y Acto Académico,
-                  independientemente de mi asistencia al mismo.
-                </li>
-                <li>
-                  Acepto que la UNIVERSIDAD UNIVER ARANDAS A.C. elabore una baja administrativa para mi matricula escolar
-                  en caso de presentar atraso en el pago de más de dos colegiaturas. Entiendo y estoy de acuerdo en que es mi
-                  responsabilidad informar al departamento de Control Escolar o Direccion cuando decida darme de baja temporal
-                  o definitiva, de lo contrario cubriré los costos correspondientes señalados en el Reglamento General de Alumnos.
-                </li>
-                <li>
-                  Que conozco el reglamento General de alumnos, que es mi responsabilidad solicitarlo y mi obligación cumplir con
-                  las normas y lineamientos establecidos en él.
-                </li>
-              </ul>
-            </td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-          </tr>
-          <tr>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-          </tr>
-        </table>
-      </fieldset>
-
-      <fieldset>
-        <table>
-          
-          <tr>
-            <td colspan="3">
-              Primer Apellido:<br/>
-              ${CANDIDATO.ApellidoP}
-            </td>
-            <td></td>
-            <td></td>
-            <td colspan="3">
-              Segundo Apellido:<br />
-              ${CANDIDATO.ApellidoM}
-            </td>
-            <td></td>
-            <td></td>
-            <td colspan="3">
-              Nombre(s):<br />
-              ${CANDIDATO.Nombres}
-            </td>
-            <td></td>
-            <td></td>
-          </tr>
-          <tr>
-            <td colspan="6" class="center">Programa de estudios: ${CARRERA.Nombre || "Carrera de prueba"}</td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td colspan="3" class="center">Turno: ${TURNO.Nombre || "Turno de prueba"}</td>
-            <td></td>
-            <td></td>
-          </tr>
-          <tr>
-            <td colspan="3" class="center">Municipio:<br>&nbsp;</td>
-            <td></td>
-            <td></td>
-            <td colspan="3" class="center">Estado:<br>&nbsp;</td>
-            <td></td>
-            <td></td>
-            <td colspan="3" class="center">___________________<br>FIRMA DEL SOLICITANTE</td>
-            <td></td>
-            <td></td>
-          </tr>
-        </table>
-      </fieldset>
-      
-    </div>
-    `;
-  
-    let footer = fs.readFileSync(path.join(__dirname,"..","/PDF/footer.html"));
-  
-    fs.writeFileSync(path.join(__dirname,"..","/PDF/SolicitudInscripcionII.html"),"");
-    fs.appendFileSync(path.join(__dirname,"..","/PDF/SolicitudInscripcionII.html"),header);
-    fs.appendFileSync(path.join(__dirname,"..","/PDF/SolicitudInscripcionII.html"),content);
-    fs.appendFileSync(path.join(__dirname,"..","/PDF/SolicitudInscripcionII.html"),footer);
-    res.status(200).sendFile(path.join(__dirname,"..","/PDF/SolicitudInscripcionII.html"));
 };
   
 async function Print(req, res, CURP) {
@@ -970,7 +755,6 @@ async function Print(req, res, CURP) {
 module.exports={
   Inscripcion,
   Acuerdo,
-  AcuerdoII,
   Print,
   create,
   readAll,
