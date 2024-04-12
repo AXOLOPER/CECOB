@@ -67,7 +67,7 @@ app.post(api+"/authenticate",async (req, res) => {
   const valid = await bcrypt.compare(secret,U.Secret);
   if(!valid){
     return res.status(401)
-    .json({ 
+    .json({
       message: "The username and password your provided are invalid"
     });
   }
