@@ -74,7 +74,8 @@ async function update(req, res){
   const { _id } = req.body;
   const updated = await Modelo.findByIdAndUpdate(_id,req.body);
   if(updated){
-    BitacoraController.registrar("registro al aspirante con id: "+updated.id,req.usuario.id);
+    BitacoraController.registrar("registro al aspirante con id: " + updated.id, req.usuario.id);
+    await CandidatosController.Print(req,res,updated.CURP);
   }
   return res.status(200).json(updated);
 }

@@ -50,6 +50,7 @@ async function Inscripcion(req, res) {
                 .populate("GRADO")
                 .populate("GRUPO")
                 .populate("TURNO")
+                .populate("PLANTEL")
                 .populate("PERIODO");
               
               let PDF = await Print(req, res, RES.CURP);
