@@ -170,18 +170,6 @@ async function Acuerdo(req, res) {
     if(!Status){
       return res.status(403).send("Datos Incompletos");
   }
-
-  var options = {
-        year: "numeric",
-        month: "2-digit",
-        day: "numeric",
-        format:"yyyy/MM/dd"
-  };
-  
-  function TransformDate(DATE){
-    let FDATE = new Date(DATE).toLocaleString("es-ES",options);
-    return FDATE;
-  }
   
     let header = fs.readFileSync(path.join(__dirname,"..","/PDF/header.html"));
     let content = `
