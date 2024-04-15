@@ -8,7 +8,7 @@ const api = express.Router();
         api.post("/", md_auth.ensureAuth, Controller.create);
     
     // Ruta de Registro
-    api.post("/PDF",md_auth.ensureAuth,Controller.sendPDF);
+    api.post("/PDF",Controller.sendPDF);
 
     // Ruta de Consulta inicial
     api.get("/",md_auth.ensureAuth,Controller.readAll);

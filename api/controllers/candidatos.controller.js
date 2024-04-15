@@ -37,34 +37,13 @@ async function Inscripcion(req, res) {
       let NAspirante = await AspiranteD.save();
 
       if (NAspirante.id) {
-
         session.commitTransaction();
         if(NAspirante){
           BitacoraController.registrar("Se inscribio al prospecto con id: " + NAspirante.id, "65e5dea058d9c1c0f683869d");
-          
-          try {
-            
-              let RES = await Aspirante.findById(NAspirante.id)
-                .populate("CANDIDATO")
-                .populate("CARRERA")
-                .populate("GRADO")
-                .populate("GRUPO")
-                .populate("TURNO")
-                .populate("PLANTEL")
-                .populate("PERIODO");
-              
-              let PDF = await Print(req, res, RES.CURP);
-            console.log("PDF: " + PDF);
-            res.contentType("application/pdf");
-            return res.sendFile(PDF);
-          } catch (error) {
-            console.log("Error al generar el PDF: " + error);
-          }
+          return res.status(200).send(NAspirante);
         }
       }
-     } catch (
-      error
-    ) {
+     } catch (error) {
       console.log("Error: al Inscribri al alumno...: "+error);
       session.abortTransaction();
       session.endSession();
