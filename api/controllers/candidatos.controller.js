@@ -714,7 +714,7 @@ async function Print(req, res, CURP) {
   const PDFPATH = path.join(__dirname, '..' + "/PDFS/" + CURP + ".pdf");
   console.log(PDFPATH)
   const pdf = await page.pdf({ format: 'letter', path: PDFPATH });
-  //pdf.save(PDFPATH);
+  pdf.save(PDFPATH);
     await browser.close();
 
     return PDFPATH;
