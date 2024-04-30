@@ -19,7 +19,7 @@ async function create(req, res) {
     NewReg.PLANTEL = PLANTEL;
     const registered = await NewReg.save();
     if(registered){
-      BitacoraController.registrar("registro al aspirante con id: "+registered._id,req.usuario.id);
+      BitacoraController.registrar("registro al aspirante con id: "+registered._id,req.usuario._id);
     }
     res.status(201).json(registered);
   } catch (error) {
@@ -74,7 +74,7 @@ async function update(req, res){
   const { _id } = req.body;
   const updated = await Modelo.findByIdAndUpdate(_id,req.body);
   if(updated){
-    BitacoraController.registrar("registro al aspirante con id: " + updated.id, req.usuario.id);
+    BitacoraController.registrar("registro al aspirante con id: " + updated.id, req.usuario._id);
     await CandidatosController.Print(req,res,updated.CURP);
   }
   return res.status(200).json(updated);
@@ -85,7 +85,7 @@ async function del(req, res){
   const user = await Modelo.findById(id);
   const deleted = await Modelo.findByIdAndUpdate(id,{Status:!user.Status});
   if(deleted){
-    BitacoraController.registrar("registro al aspirante con id: "+deleted.id,req.usuario.id);
+    BitacoraController.registrar("registro al aspirante con id: "+deleted.id,req.usuario._id);
   }
   return res.status(200).json(deleted);
 }

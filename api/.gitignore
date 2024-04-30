@@ -5,3 +5,7 @@
 /PDF/SolicitudInscripcionII.html
 /PDFS/*
 /PNGS/*
+
+
+!/PDFS/.gitkeep
+!/PNGS/.gitkeep

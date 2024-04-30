@@ -8,7 +8,7 @@ async function create(req, res) {
     const nuevo = new Modelo(req.body);
     const saved = await nuevo.save();
   if(saved){
-      BitacoraController.registrar("registró "+text+" con id: "+saved.id,req.usuario.id);
+      BitacoraController.registrar("registró "+text+" con id: "+saved.id,req.usuario.id, req.usuario._id);
     }
     res.status(201).json(saved);
   } catch (error) {
@@ -33,7 +33,7 @@ async function update(req, res){
     const { _id } = req.body;
     const updated = await Modelo.findByIdAndUpdate(_id, req.body);
   if(updated){
-      BitacoraController.registrar("actualizó "+text+" con id: "+updated.id,req.usuario.id);
+      BitacoraController.registrar("actualizó "+text+" con id: "+updated.id,req.usuario._id);
     }
     res.status(201).json(updated);
   } catch (error) {
@@ -48,7 +48,7 @@ async function del(req, res){
     const found = await Modelo.findById(id);
     const deleted = await Modelo.findByIdAndUpdate(id,{Status:!found.Status});
   if(deleted){
-      BitacoraController.registrar("eliminó "+text+" con id: "+deleted._id,req.usuario.id);
+      BitacoraController.registrar("eliminó "+text+" con id: "+deleted._id,req.usuario._id);
     }
     return res.status(201).json(deleted);
   } catch (error) {
