@@ -90,10 +90,21 @@ async function del(req, res){
   return res.status(200).json(deleted);
 }
 
+async function readCURP(req, res) {
+  const { CURP } = req.params;
+  const Find = await Modelo.findOne({ CURP: CURP });
+  
+  if(Find)
+    return res.status(200).json(Find);
+  
+  return res.status(204).json();
+}
+
 module.exports={
   create,
   readAll,
   read1,
+  readCURP,
   update,
   del,
   sendPDF

@@ -171,7 +171,7 @@ async function Acuerdo(req, res) {
           <tr>
             <td colspan="2" rowspan="3">
               <div style="display: block;" class="imagen">
-                <img src="${APIHOST+API+'/logo/Univer.png'}" style="width:70mm;" />
+                <img src="${APIHOST+API+'/logo/Univer.png'}" style="width:50mm;" />
               </div>
             </td>
             <td></td>
@@ -439,7 +439,7 @@ async function Acuerdo(req, res) {
 
     <br />
     <fieldset>
-      <legend>Datos de emergencia</legend>
+      <legend>DATOS DE EMERGENCIA</legend>
       <table>
         <tr>
           <th><span></span></th>
@@ -714,7 +714,7 @@ async function Print(req, res, CURP) {
   const PDFPATH = path.join(__dirname, '..' + "/PDFS/" + CURP + ".pdf");
   console.log(PDFPATH)
   const pdf = await page.pdf({ format: 'letter', path: PDFPATH });
-  pdf.save(PDFPATH);
+  //pdf.save(PDFPATH);
     await browser.close();
 
     return PDFPATH;

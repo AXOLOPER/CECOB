@@ -5,7 +5,7 @@ const Controller = require("../controllers/aspirantes.controller");
 const api = express.Router();
 
     // Ruta de Registro
-        api.post("/", md_auth.ensureAuth, Controller.create);
+    api.post("/", md_auth.ensureAuth, Controller.create);
     
     // Ruta de Registro
     api.post("/PDF",Controller.sendPDF);
@@ -20,6 +20,9 @@ const api = express.Router();
     api.put("/",md_auth.ensureAuth,Controller.update);
   
     // Ruta de Eliminar
-    api.delete("/:id",md_auth.ensureAuth,Controller.del);
+    api.delete("/:id", md_auth.ensureAuth, Controller.del);
+    
+    // Ruta de Inscripcion
+    api.post("/CURP/:CURP",Controller.readCURP);
 
 module.exports = api;
