@@ -9,7 +9,7 @@ async function create(req, res) {
     nuevo.Nombre=req.body.Nombre;
     const saved = await nuevo.save();
   if(saved){
-      BitacoraController.registrar("registro "+text+" "+saved.Nombre+" con id: "+saved.id, req.usuario.id);
+      BitacoraController.registrar("registro "+text+" "+saved.Nombre+" con id: "+saved.id, req.usuario._id);
     }
     res.status(201).json(saved);
   } catch (error) {
@@ -34,7 +34,7 @@ async function update(req, res){
     const { _id } = req.body;
     const updated = await Modelo.findByIdAndUpdate(_id, req.body);
   if(updated){
-      BitacoraController.registrar("actualizo "+text+" "+updated.Nombre+" con id: "+updated._id,req.usuario.id);
+      BitacoraController.registrar("actualizo "+text+" "+updated.Nombre+" con id: "+updated._id,req.usuario._id);
     }
     res.status(201).json(updated);
   } catch (error) {
@@ -50,7 +50,7 @@ async function del(req, res){
     let accion = consul.Status?"elimino":"restauro";
     const deleted = await Modelo.findByIdAndUpdate(_id,{Status:!consul.Status});
   if(deleted){
-      BitacoraController.registrar(accion+" "+text+" "+deleted.Nombre+" con id: "+deleted._id,req.usuario.id);
+      BitacoraController.registrar(accion+" "+text+" "+deleted.Nombre+" con id: "+deleted._id,req.usuario._id);
     }
     res.status(201).json(deleted);
   } catch (error) {
