@@ -64,7 +64,7 @@ const mongoose = require('mongoose');
   ];
 
 const aspirantesSchema = new mongoose.Schema({
-  CURP: { type: String, required: true, unique:true},
+  CURP: { type: String, required: true},
   CANDIDATO: { type: mongoose.Types.ObjectId, required: true, ref: "Candidatos"},
   CARRERA: { type: mongoose.Types.ObjectId, required: true, ref:"Carrera" },
   GRADO: { type: mongoose.Types.ObjectId, required: true, ref:"Grado" },
