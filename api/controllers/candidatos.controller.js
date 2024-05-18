@@ -69,7 +69,7 @@ async function readAll  (req, res) {
 
 async function read1(req, res) {
   const { id } = req.params;
-  const Find = await Modelo.findOne({CURP:id});
+  const Find = await Modelo.findById(id);
   return res.status(200).json(Find);
 }
 
@@ -94,7 +94,7 @@ async function update(req, res) {
 
 async function del(req, res) {
   const { id } = req.params;
-  const user = await Modelo.findOne({CURP:id});
+  const user = await Modelo.findById(id);
   const deleted = await Modelo.findByIdAndUpdate(id, { Status: !user.Status });
   if (deleted) {
     BitacoraController.registrar("registro al aspirante con id: " + deleted.id, req.usuario.id);
@@ -129,6 +129,7 @@ async function Acuerdo(req, res) {
       PERIODO,
       MATRICULA,
       CANDIDATO,
+      DOCUMENTOS,
       Status
     } = Data;
 
@@ -149,7 +150,55 @@ async function Acuerdo(req, res) {
     if(!Status){
       return res.status(403).send("Datos Incompletos");
   }
+
+  let tabla = '<table class="docs"><tr><th>No.</th><th class="doc">Documento</th><th>Original</th><th>Copia</th></tr><tr>';
+        if(DOCUMENTOS){
+          if(DOCUMENTOS.length>1){
+            DOCUMENTOS.forEach((doc,i)=>{
+              tabla=tabla.concat('<tr>');
+              tabla=tabla.concat(`<td>${i+1}</td>`);
+              tabla=tabla.concat(`<td style="text-align:left;">${doc.Nombre}</td>`);
+              if(doc.Original){tabla=tabla.concat(`<td>✔️</td>`);}else{tabla=tabla.concat(`<td> </td>`);}
+              if(doc.Copia){tabla=tabla.concat(`<td>✔️</td>`);}else{tabla=tabla.concat(`<td> </td>`);}
+              
+              tabla=tabla.concat('</tr>');
+            });
+          }
+        }
   
+  tabla = tabla.concat(`</tr></table>`);
+  
+  let observaciones = ``;
+  observaciones = observaciones.concat('<label>Observaciones:</label></br>');
+  observaciones = observaciones.concat('<textarea rows="4" cols="100"></textarea>');
+
+  let LugarFecha = `<table class='docs'>`;
+  LugarFecha = LugarFecha.concat('<tr><th>Lugar:</th><th>Fecha:</th></tr>');
+  LugarFecha = LugarFecha.concat('<tr><td>&nbsp;</td><td>&nbsp</td></tr>');
+  LugarFecha = LugarFecha.concat('</table>');
+
+  let Firma = `<div style="width:100%;text-align:center;">
+  <br/>
+  <br/>
+  <br/>
+  __________________________________________________________________________<br/>
+                  Firma de quien recibio documentos
+  </div>`;
+
+  let Caja = `
+  <strong>Espacio exclusivo para caja</strong></br></br></br>
+  Recibí las siguientes cantidades, por los conceptos:</br></br></br>`;
+
+  let cantidades = "<u>Inscripción: $                                                           </u><br/><br/><u>Primera mensualidad: $                                             </u><br/><br/><br/>";
+  cantidades = cantidades.replace(/ /g,"&nbsp;");
+
+  Caja= Caja.concat(cantidades);
+
+  Caja= Caja.concat(`<table class='docs'>`);
+        Caja = Caja.concat(`<tr><th>Firma: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th><th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th></tr>`);
+        Caja = Caja.concat(`<tr><th><br/>&nbsp;<br/></th><th><br/>&nbsp;<br/></th></tr>`);
+  Caja= Caja.concat(`</table>`);
+
     let header = fs.readFileSync(path.join(__dirname,"..","/PDF/header.html"));
     let content = `
   <body  class="PDF">
@@ -522,6 +571,29 @@ async function Acuerdo(req, res) {
         </tr>
       </table>
     </fieldset>
+    </div>
+
+    <div class="hoja">
+    ${tabla}
+    <br/>
+    ${observaciones}
+    <br/>
+    ${LugarFecha}
+    <br/>
+    ${Firma}
+    <br/>
+    <br/>
+    <br/>
+    ${Caja}
+    <br/>
+    <br/>
+
+    <div style="width:100%;text-align:center">
+      <strong><i>
+        Condicionado a los resultados de la entrevista y examen psicopedagógico
+      </i></strong>
+    </div>
+    </div>
 
 
     <div class="hoja">
@@ -562,9 +634,9 @@ async function Acuerdo(req, res) {
           <tr></tr>
           <tr>
             <td colspan="9">
-              <ul>
+              <ol>
                 <li>
-                  Conozco que la ley impone como condición para inciciar mis estudios de grado superior
+                  Conozco que la ley impone como condición para iniciar mis estudios de grado superior
                   haber cubierto en su totalidad el plan de estudios del nivel anterior al que deseo ingresar.
                 </li>
                 <li>
@@ -592,12 +664,12 @@ async function Acuerdo(req, res) {
                   que acredite dichos estudios, ni me reembolsará por los pagos o cuotas realizadas.
                 </li>
                 <li>
-                  Me comprometo a realizar puntualmente mis pagos de inscripcióin, reisncripción y parcialidades mensuales,
+                  Me comprometo a realizar puntualmente mis pagos de inscripción, reinscripción y parcialidades mensuales,
                   así como los pagos de los gastos administrativos vigentes a la fecha de impuntualidad, establecidos por la
                   Institución correspondiente al atraso en el pago de las cuotas autorizadas.
                 </li>
                 <li>
-                  Me comprometo a realizar puntualmente mis pagos por concepto de rerminación de estudios y Acto Académico,
+                  Me comprometo a realizar puntualmente mis pagos por concepto de terminación de estudios y Acto Académico,
                   independientemente de mi asistencia al mismo.
                 </li>
                 <li>
@@ -610,7 +682,7 @@ async function Acuerdo(req, res) {
                   Que conozco el reglamento General de alumnos, que es mi responsabilidad solicitarlo y mi obligación cumplir con
                   las normas y lineamientos establecidos en él.
                 </li>
-              </ul>
+              </ol>
             </td>
             <td></td>
             <td></td>
