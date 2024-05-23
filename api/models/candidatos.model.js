@@ -9,6 +9,7 @@ const candidatosSchema = new mongoose.Schema({
   FMes: { type: Number, required: true },
   FYear: { type: Number, required: true },
   FNac: { type: Date, required: true },
+  EF: {type:String,required:true},
   LNac: { type: String, required: true },
   Domicilio: { type: String, required: true },
   CP: { type: Number, required: true },
