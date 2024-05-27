@@ -1,10 +1,10 @@
 const Modelo = require('../models/aperturas.model');
 const BitacoraController = require("./bitacora.controller");
-const path = require('path');
 
 async function create(req, res) {
   try {
     const {
+      Nombre,
       ASPIRANTES,
       PLANTEL,
       CARRERA,
@@ -37,7 +37,7 @@ async function create(req, res) {
     
     const registered = await NewReg.save();
     if(registered){
-      BitacoraController.registrar("registro al aspirante con id: "+registered._id,req.usuario._id);
+      BitacoraController.registrar("registro al aspirante con id: "+registered._id,req.usuario.id);
     }
     res.status(201).json(registered);
   } catch (error) {
@@ -47,7 +47,7 @@ async function create(req, res) {
 };
 
 async function readAll  (req, res) {
-  const SORT = { sort: [['PLANTEL.Nombre', 'asc' ]] };
+  const SORT =  [['PLANTEL.Nombre', 1 ]];
   const all = await Modelo.find()
   .populate("ASPIRANTES")
   .populate("CARRERA")
@@ -79,7 +79,7 @@ async function update(req, res){
   req.body.GRUPO = req.body.GRUPO?req.body.GRUPO:undefinded;
   const updated = await Modelo.findByIdAndUpdate(_id,req.body);
   if(updated){
-    BitacoraController.registrar("registro al aspirante con id: " + updated._id, req.usuario._id);
+    BitacoraController.registrar("registro al aspirante con id: " + updated._id, req.usuario.id);
   }
   return res.status(200).json(updated);
 }
@@ -89,7 +89,7 @@ async function del(req, res){
   const user = await Modelo.findById(id);
   const deleted = await Modelo.findByIdAndUpdate(id,{Status:!user.Status});
   if(deleted){
-    BitacoraController.registrar("registro al aspirante con id: "+deleted.id,req.usuario._id);
+    BitacoraController.registrar("registro al aspirante con id: "+deleted.id,req.usuario.id);
   }
   return res.status(200).json(deleted);
 }

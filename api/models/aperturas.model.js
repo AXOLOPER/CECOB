@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const NSchema = new mongoose.Schema({
+  Nombre: {type:String},
   ASPIRANTES: [{ type: mongoose.Types.ObjectId, required: true, ref: "Aspirantes"}],
   PLANTEL: { type: mongoose.Types.ObjectId, required: true, ref:"Plantel" },
   CARRERA: { type: mongoose.Types.ObjectId, required: true, ref:"Carrera" },

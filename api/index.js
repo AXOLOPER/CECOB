@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const jwt = require('jsonwebtoken');
 const bcrypt = require("bcrypt");
 var cors = require('cors');
+const aperturasRoute = require('./routes/aperturas.routes');
 const aspirantesRoute = require('./routes/aspirantes.routes');
 const candidatosRoute = require('./routes/candidatos.routes');
 const usuariosRoute = require('./routes/usuarios.routes');
@@ -36,8 +37,6 @@ app.get(api+"/", async (req, res) => {
 
 app.use(api+'/usuarios',usuariosRoute);
 app.use(api+'/bitacora',bitacoraRoute);
-app.use(api+'/candidatos',candidatosRoute);
-app.use(api+'/aspirantes',aspirantesRoute);
 app.use(api+'/carreras',carrerasRoute);
 app.use(api+'/niveles',nivelesRoute);
 app.use(api+'/entidadesFederativas',entidadesFederativasRoute);
@@ -47,6 +46,9 @@ app.use(api+'/grados',gradoRoute);
 app.use(api+'/grupos',grupoRoute);
 app.use(api+'/turnos',turnoRoute);
 app.use(api+'/planteles',plantelRoute);
+app.use(api+'/candidatos',candidatosRoute);
+app.use(api+'/aspirantes',aspirantesRoute);
+app.use(api+'/aperturas',aperturasRoute);
 
 // The secret should be an unguessable long string (you can use a password generator for this!)
 const JWT_SECRET ="goK!pusp6ThEdURUtRenOwUhAsWUCLheBazl!uJLPlS8EbreWLdrupIwabRAsiBu";

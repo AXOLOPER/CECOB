@@ -29,7 +29,7 @@ async function registrar(req, res){
     await newUser.save();
 
     if(newUser){
-        BitacoraController.registrar("creo al usuario: "+newUser.Usuario+", con ID: "+newUser.id, req.usuario._id);
+        BitacoraController.registrar("creo al usuario: "+newUser.Usuario+", con ID: "+newUser.id, req.usuario.id);
     }
 
     return res.status(201).json({ message: "Usuario registrado exitosamente" });
@@ -69,7 +69,7 @@ async function editar(req, res){
     }
     const usuarioEdited = await Usuario.findByIdAndUpdate(usuario._id,usuario);
     if(usuarioEdited){
-        BitacoraController.registrar("modifico al usuario: "+usuarioEdited.Usuario+", con ID: "+usuarioEdited.id, req.usuario._id);
+        BitacoraController.registrar("modifico al usuario: "+usuarioEdited.Usuario+", con ID: "+usuarioEdited.id, req.usuario.id);
     }
     return res.status(200).json(usuarioEdited);
 }
@@ -83,7 +83,7 @@ async function eliminar(req, res){
     const estado = !usuarioConsulted.estado;
     const usuarioEdited = await Usuario.findByIdAndUpdate(id,{estado:estado});
     if(usuarioEdited){
-        BitacoraController.registrar("elimino al usuario: "+usuarioEdited.Usuario+", con ID: "+usuarioEdited.id, req.usuario._id);
+        BitacoraController.registrar("elimino al usuario: "+usuarioEdited.Usuario+", con ID: "+usuarioEdited.id, req.usuario.id);
     }
 
 
