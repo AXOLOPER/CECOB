@@ -19,7 +19,8 @@ async function create(req, res) {
     NewReg.PLANTEL = PLANTEL;
     const registered = await NewReg.save();
     if(registered){
-      BitacoraController.registrar("registro al aspirante con id: "+registered._id,req.usuario.id);
+      BitacoraController.registrar("registro al aspirante con id: " + registered._id, req.usuario.id);
+      
     }
     res.status(201).json(registered);
   } catch (error) {
@@ -72,7 +73,7 @@ async function sendPDF(req, res) {
 
 async function update(req, res){
   const { _id } = req.body;
-  req.body.GRUPO = req.body.GRUPO?req.body.GRUPO:undefinded;
+  req.body.GRUPO = req.body.GRUPO?req.body.GRUPO:null;
   const updated = await Modelo.findByIdAndUpdate(_id,req.body);
   if(updated){
     BitacoraController.registrar("registro al aspirante con id: " + updated._id, req.usuario.id);

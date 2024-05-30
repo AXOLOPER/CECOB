@@ -1,6 +1,8 @@
 const Modelo = require('../models/aperturas.model');
 const BitacoraController = require("./bitacora.controller");
 
+label = "la apertura";
+
 async function create(req, res) {
   try {
     const {
@@ -20,7 +22,7 @@ async function create(req, res) {
       Status
     } = req.body;
     const NewReg = new Modelo();
-    
+    NewReg.Nombre = Nombre;
     NewReg.ASPIRANTES = ASPIRANTES;
     NewReg.PLANTEL = PLANTEL;
     NewReg.CARRERA = CARRERA;
@@ -37,12 +39,12 @@ async function create(req, res) {
     
     const registered = await NewReg.save();
     if(registered){
-      BitacoraController.registrar("registro al aspirante con id: "+registered._id,req.usuario.id);
+      BitacoraController.registrar("registro "+label+" con id: "+registered._id,req.usuario.id);
     }
     res.status(201).json(registered);
   } catch (error) {
-    console.error('Error al guardar el aspirante:', error);
-    res.status(500).json({ error: 'Ocurrió un error al guardar el aspirante' });
+    console.error('Error al guardar '+label+':', error);
+    res.status(500).json({ error: 'Ocurrió un error al guardar '+label+'' });
   }
 };
 
