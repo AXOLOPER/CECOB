@@ -1,59 +1,48 @@
-const Modelo = require('../models/aspirantes.model');
-const Candidato = require('../models/candidatos.model');
+const Modelo = require('../models/alumnos.model');
+const Aspirante = require('../models/aspirantes.model');
 const BitacoraController = require("./bitacora.controller");
-const CandidatosController = require("./candidatos.controller");
 const path = require('path');
 
 async function create(req, res) {
   try {
-    const {CURP,CARRERA,GRADO,GRUPO,TURNO,PERIODO,PLANTEL} = req.body;
-    let candidato = await Candidato.findOne({CURP:CURP});
+    const {CURP, Matricula, Status,baja} = req.body;
+    let aspirante = await Aspirante.findOne({CURP:CURP});
     const NewReg = new Modelo();
     NewReg.CURP = CURP;
-    NewReg.CANDIDATO = candidato.id;
-    NewReg.CARRERA = CARRERA;
-    NewReg.GRADO = GRADO;
-    NewReg.GRUPO = GRUPO;
-    NewReg.TURNO = TURNO;
-    NewReg.PERIODO = PERIODO;
-    NewReg.PLANTEL = PLANTEL;
+    NewReg.ASPIRANTE = aspirante._id;
+    NewReg.Matricula = Matricula;
+    NewReg.Status = Status;
+    NewReg.Baja = baja||undefined;
     const registered = await NewReg.save();
     if(registered){
-      BitacoraController.registrar("registro al aspirante con id: " + registered._id, req.usuario.id);
-      
+      BitacoraController.registrar("registro al Alumno con id: " + registered._id, req.usuario.id);
     }
     res.status(201).json(registered);
   } catch (error) {
-    console.error('Error al guardar el aspirante:', error);
-    res.status(500).json({ error: 'Ocurrió un error al guardar el aspirante' });
+    console.error('Error al guardar el Alumno:', error);
+    res.status(500).json({ error: 'Ocurrió un error al guardar el Alumno' });
   }
 };
 
 async function readAll  (req, res) {
-  const SORT = { sort: [['CARRERA.Nombre', 'asc' ]] };
+  const POPULATE = { path:'ASPIRANTE', populate:{path:"CARRERA"}};
+  const SORT = [['ASPIRANTE.CARRERA.Nombre', 'asc'], ['ASPIRANTE.CARRERA.Abreviatura', 'asc']];
   const all = await Modelo.find()
-  .populate("CANDIDATO")
-  .populate("CARRERA")
-  .populate("GRADO")
-  .populate("GRUPO")
-  .populate("TURNO")
-  .populate("PERIODO")
-  .populate("PLANTEL")
-  .sort("CARRERA.Abreviatura");
+  .populate(POPULATE)
+  .sort(SORT);
   return res.status(200).json(all);
 }
 
 async function read1(req, res){
   const { id } = req.params;
-  const Find = await Modelo.findOne({_id:id})
-  .populate("CANDIDATO")
-  .populate("CARRERA")
-  .populate("GRADO")
-  .populate("GRUPO")
-  .populate("TURNO")
-  .populate("PERIODO")
-  .populate("PLANTEL")
-  .sort("CARRERA.Abreviatura");
+  const Find = await Modelo.findOne({ _id: id })
+    .populate("ASPIRANTE")
+    .populate("CARRERA")
+    .populate("GRADO")
+    .populate("GRUPO")
+    .populate("TURNO")
+    .populate("PERIODO")
+    .populate("PLANTEL");
   return res.status(200).json(Find);
 }
 
@@ -76,7 +65,7 @@ async function update(req, res){
   req.body.GRUPO = req.body.GRUPO?req.body.GRUPO:null;
   const updated = await Modelo.findByIdAndUpdate(_id,req.body);
   if(updated){
-    BitacoraController.registrar("Modifico al aspirante con id: " + updated._id, req.usuario.id);
+    BitacoraController.registrar("registro al Alumno con id: " + updated._id, req.usuario.id);
     await CandidatosController.Print(req,res,updated.CURP);
   }
   return res.status(200).json(updated);
@@ -87,7 +76,7 @@ async function del(req, res){
   const user = await Modelo.findById(id);
   const deleted = await Modelo.findByIdAndUpdate(id,{Status:!user.Status});
   if(deleted){
-    BitacoraController.registrar("registro al aspirante con id: "+deleted.id,req.usuario.id);
+    BitacoraController.registrar("registro al Alumno con id: "+deleted.id,req.usuario.id);
   }
   return res.status(200).json(deleted);
 }

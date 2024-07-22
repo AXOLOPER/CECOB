@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const jwt = require('jsonwebtoken');
 const bcrypt = require("bcrypt");
 var cors = require('cors');
+const aperturasRoute = require('./routes/aperturas.routes');
 const aspirantesRoute = require('./routes/aspirantes.routes');
 const candidatosRoute = require('./routes/candidatos.routes');
 const usuariosRoute = require('./routes/usuarios.routes');
@@ -17,8 +18,12 @@ const gradoRoute = require('./routes/grado.routes');
 const grupoRoute = require('./routes/grupo.routes');
 const turnoRoute = require('./routes/turno.routes');
 const plantelRoute = require('./routes/plantel.routes');
+const cobranzaRoute = require('./routes/cobranza.routes');
+const alumnosRoute = require('./routes/alumnos.routes');
+const licenciasRoute = require('./routes/licencia.routes');
 
 const Usuario = require('./models/usuarios.model');
+const Alumnos = require('./models/alumnos.model');
 const { PORT, DBLINK, API, HOST, APIHOST } = require("./config");
 const path = require('path');
 
@@ -36,8 +41,6 @@ app.get(api+"/", async (req, res) => {
 
 app.use(api+'/usuarios',usuariosRoute);
 app.use(api+'/bitacora',bitacoraRoute);
-app.use(api+'/candidatos',candidatosRoute);
-app.use(api+'/aspirantes',aspirantesRoute);
 app.use(api+'/carreras',carrerasRoute);
 app.use(api+'/niveles',nivelesRoute);
 app.use(api+'/entidadesFederativas',entidadesFederativasRoute);
@@ -47,6 +50,14 @@ app.use(api+'/grados',gradoRoute);
 app.use(api+'/grupos',grupoRoute);
 app.use(api+'/turnos',turnoRoute);
 app.use(api+'/planteles',plantelRoute);
+app.use(api+'/candidatos',candidatosRoute);
+app.use(api+'/aspirantes',aspirantesRoute);
+app.use(api + '/aperturas', aperturasRoute);
+
+
+app.use(api+'/cobranza',cobranzaRoute);
+app.use(api+'/alumnos',alumnosRoute);
+app.use(api+'/licencias',licenciasRoute);
 
 // The secret should be an unguessable long string (you can use a password generator for this!)
 const JWT_SECRET ="goK!pusp6ThEdURUtRenOwUhAsWUCLheBazl!uJLPlS8EbreWLdrupIwabRAsiBu";
@@ -57,24 +68,38 @@ app.post(api+"/authenticate",async (req, res) => {
   const secret  = req.body.Secret;
   console.log(`${usuario} is trying to login ...`);
 
-  const U = await Usuario.findOne({Usuario:usuario, estado:true});
-  if(!U){
-    return res
-    .status(401)
-    .json({ message: "The username and password your provided are invalid" });
+  let U = await Usuario.findOne({ Usuario: usuario, estado: true });
+  
+  const A = await  Alumnos.findOne({ Matricula: usuario }).populate({path:'ASPIRANTE',populate:{path:'CANDIDATO'}});
+  
+  if(!U&&!A){
+    return res.status(404)
+    .json({
+      message: "El usuario y contraseña son incorrectos"
+    });
+  }
+  if (!U && A) {
+    const Secret = "Gorey2024";
+    const hashedPassword = await bcrypt.hash(Secret, 10);
+    const N = new Usuario({Nombre:A.ASPIRANTE.CANDIDATO.Nombres, Usuario: usuario, Secret: hashedPassword, privilegios: { ALUMNOS: true } });
+    const newUser = await N.save();
+    if (newUser) {
+      BitacoraController.registrar("creo al usuario: "+newUser.Usuario+", con ID: "+newUser._id, newUser._id);
+    }
+    U = await Usuario.findOne({ Usuario: usuario, estado:true });
   }
 
   const valid = await bcrypt.compare(secret,U.Secret);
   if(!valid){
     return res.status(401)
     .json({
-      message: "The username and password your provided are invalid"
+      message: "El usuario y contraseña son incorrectos"
     });
   }
     
   console.log(`${usuario} has loggedin successfully ..`);
   return res.status(200).json({
-    token: jwt.sign({exp: Math.floor(Date.now() / 1000) + (60 * 60 * 10),data:{ user: U.Usuario, privilegios:U.privilegios, id:U._id }}, JWT_SECRET),
+    token: jwt.sign({exp: Math.floor(Date.now() / 1000) + (60 * 60 * 10),data:{ user: (U.Usuario||A.Matricula), privilegios:(U.privilegios||A.privilegios), id:(U._id||A._id) }}, JWT_SECRET),
     message: `${usuario} has loggedin successfully ..`
   });
 });

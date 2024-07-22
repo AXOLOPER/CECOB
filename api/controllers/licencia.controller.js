@@ -1,14 +1,16 @@
-const {Periodo} = require('../models/periodo.model');
-const Modelo = Periodo;
-const text = "El periodo"
+const {Licencia} = require('../models/licencias.model');
+const Modelo = Licencia;
+const text = "la licencia"
 const BitacoraController = require("./bitacora.controller");
 
 async function create(req, res) {
   try {
-    const nuevo = new Modelo(req.body);
+    const nuevo = new Modelo();
+    nuevo.usuario = req.body.usuario;
+    nuevo.pass = req.body.pass;
     const saved = await nuevo.save();
   if(saved){
-      BitacoraController.registrar("registró "+text+" "+saved.Nombre+" con id: "+saved.id, req.usuario.id);
+      BitacoraController.registrar("registró "+text+" "+saved.Nombre+" con id: "+saved._id, req.usuario.id);
     }
     res.status(201).json(saved);
   } catch (error) {
@@ -28,12 +30,26 @@ async function read1(req, res){
   return res.status(200).json(prospecto);
 }
 
+async function loan(req, res) {
+  const id = req.usuario.id;
+  console.log(new Date(Date.now()));
+  let loaned = await Modelo.findOne({prestado:id});
+  if (!loaned) { 
+    loaned = await Modelo.findOneAndUpdate({ $or: [{ Status: false }, { fechaF: { $lt: new Date(Date.now()) } }] }, { Status: true, fechaI: new Date(Date.now()), fechaF: new Date(Date.now() + (7 * 24 * 60 * 60 * 1000)), prestado: id });
+  }
+  if (loaned) {
+    loaned = await Modelo.findById(loaned._id).populate("prestado");
+    return res.status(200).json(loaned);
+  }
+  return res.status(201).json({ message:"No hay licencias disponibles"});
+}
+
 async function update(req, res){
   try {
     const id = req.body._id;
     const updated = await Modelo.findByIdAndUpdate(id, req.body);
   if(updated){
-      BitacoraController.registrar("actualizó "+text+" con id: "+updated.id, req.usuario.id);
+      BitacoraController.registrar("actualizó "+text+" con id: "+updated._id, req.usuario.id);
     }
     res.status(201).json(updated);
   } catch (error) {
@@ -48,7 +64,7 @@ async function del(req, res){
     const found = await Modelo.findById(id);
     const deleted = await Modelo.findByIdAndUpdate(id,{Status:!found.Status});
   if(deleted){
-      BitacoraController.registrar("eliminó "+text+" con id: "+deleted.id, req.usuario.id);
+      BitacoraController.registrar("eliminó "+text+" con id: "+deleted._id, req.usuario.id);
     }
     res.status(201).json(deleted);
   } catch (error) {
@@ -61,6 +77,7 @@ module.exports={
   create,
   readAll,
   read1,
+  loan,
   update,
   del
 }

@@ -76,7 +76,9 @@ const aspirantesSchema = new mongoose.Schema({
     Nombre:{type:String},
     Original:{type:Boolean,default:false},
     Copia:{type:Boolean,default:false}
-  }],default:Docs},
+  }], default: Docs
+  },
+  Inscrito: { type: Boolean, default: false },
   Status: { type: Boolean, default: true },
 },{timestamps:true});
 

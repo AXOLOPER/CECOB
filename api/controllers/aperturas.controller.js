@@ -1,45 +1,64 @@
-const Modelo = require('../models/aspirantes.model');
-const Candidato = require('../models/candidatos.model');
+const Modelo = require('../models/aperturas.model');
 const BitacoraController = require("./bitacora.controller");
-const CandidatosController = require("./candidatos.controller");
-const path = require('path');
+
+label = "la apertura";
 
 async function create(req, res) {
   try {
-    const {CURP,CARRERA,GRADO,GRUPO,TURNO,PERIODO,PLANTEL} = req.body;
-    let candidato = await Candidato.findOne({CURP:CURP});
+    const {
+      Nombre,
+      ASPIRANTES,
+      PLANTEL,
+      CARRERA,
+      GRADO,
+      GRUPO,
+      TURNO,
+      PERIODO,
+      disponible,
+      lleno,
+      dispuesto,
+      abierto,
+      cerrado,
+      Status
+    } = req.body;
     const NewReg = new Modelo();
-    NewReg.CURP = CURP;
-    NewReg.CANDIDATO = candidato.id;
+    NewReg.Nombre = Nombre;
+    NewReg.ASPIRANTES = ASPIRANTES;
+    NewReg.PLANTEL = PLANTEL;
     NewReg.CARRERA = CARRERA;
     NewReg.GRADO = GRADO;
     NewReg.GRUPO = GRUPO;
     NewReg.TURNO = TURNO;
     NewReg.PERIODO = PERIODO;
-    NewReg.PLANTEL = PLANTEL;
+    NewReg.disponible = disponible;
+    NewReg.lleno = lleno;
+    NewReg.dispuesto = dispuesto;
+    NewReg.abierto = abierto;
+    NewReg.cerrado = cerrado;
+    NewReg.Status = Status;
+    
     const registered = await NewReg.save();
     if(registered){
-      BitacoraController.registrar("registro al aspirante con id: " + registered._id, req.usuario.id);
-      
+      BitacoraController.registrar("registro "+label+" con id: "+registered._id,req.usuario.id);
     }
     res.status(201).json(registered);
   } catch (error) {
-    console.error('Error al guardar el aspirante:', error);
-    res.status(500).json({ error: 'Ocurrió un error al guardar el aspirante' });
+    console.error('Error al guardar '+label+':', error);
+    res.status(500).json({ error: 'Ocurrió un error al guardar '+label+'' });
   }
 };
 
 async function readAll  (req, res) {
-  const SORT = { sort: [['CARRERA.Nombre', 'asc' ]] };
+  const SORT =  [['PLANTEL.Nombre', 1 ]];
   const all = await Modelo.find()
-  .populate("CANDIDATO")
+  .populate("ASPIRANTES")
   .populate("CARRERA")
   .populate("GRADO")
   .populate("GRUPO")
   .populate("TURNO")
   .populate("PERIODO")
   .populate("PLANTEL")
-  .sort("CARRERA.Abreviatura");
+  .sort(SORT);
   return res.status(200).json(all);
 }
 
@@ -57,27 +76,12 @@ async function read1(req, res){
   return res.status(200).json(Find);
 }
 
-async function sendPDF(req, res) {
-  const CURP = req.body.CURP;
-  const PDFPATH = path.join(__dirname, '..' + "/PDFS/" + CURP + ".pdf");
-  console.log(PDFPATH);
-  
-  var fs = require('fs');
-
-  //if (!fs.existsSync(PDFPATH)) {
-    await CandidatosController.Print(req,res,CURP);
-  //}
-
-  return res.status(200).sendFile(PDFPATH);
-};
-
 async function update(req, res){
   const { _id } = req.body;
-  req.body.GRUPO = req.body.GRUPO?req.body.GRUPO:null;
+  req.body.GRUPO = req.body.GRUPO?req.body.GRUPO:undefinded;
   const updated = await Modelo.findByIdAndUpdate(_id,req.body);
   if(updated){
-    BitacoraController.registrar("Modifico al aspirante con id: " + updated._id, req.usuario.id);
-    await CandidatosController.Print(req,res,updated.CURP);
+    BitacoraController.registrar("registro al aspirante con id: " + updated._id, req.usuario.id);
   }
   return res.status(200).json(updated);
 }
@@ -92,22 +96,10 @@ async function del(req, res){
   return res.status(200).json(deleted);
 }
 
-async function readCURP(req, res) {
-  const { CURP } = req.params;
-  const Find = await Modelo.findOne({ CURP: CURP });
-  
-  if(Find)
-    return res.status(200).json(Find);
-  
-  return res.status(204).json();
-}
-
 module.exports={
   create,
   readAll,
   read1,
-  readCURP,
   update,
   del,
-  sendPDF
 }

@@ -43,8 +43,16 @@ const usuariosSchema = new mongoose.Schema({
         read:{ type:Boolean },
         update:{ type:Boolean },
         delete:{ type:Boolean }
+      },
+      aperturasT:{ type:Boolean },
+      aperturas:{
+        create:{ type:Boolean },
+        read:{ type:Boolean },
+        update:{ type:Boolean },
+        delete:{ type:Boolean }
       }
-    }
+    },
+    ALUMNOS:{ type:Boolean }
   }
 });
 
