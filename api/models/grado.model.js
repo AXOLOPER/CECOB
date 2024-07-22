@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const gradoSchema = new mongoose.Schema({
+  Clave:{type:String},
   Nombre:{type:String},
   Numero:{type:Number},
   Simbolo:{type:String},

@@ -6,7 +6,7 @@ const path = require('path');
 
 async function create(req, res) {
   try {
-    const {CURP,CARRERA,GRADO,GRUPO,TURNO,PERIODO,PLANTEL,Status} = req.body;
+    const {CURP,CARRERA,GRADO,GRUPO,TURNO,PERIODO,PLANTEL} = req.body;
     let candidato = await Candidato.findOne({CURP:CURP});
     const NewReg = new Modelo();
     NewReg.CURP = CURP;
@@ -17,7 +17,6 @@ async function create(req, res) {
     NewReg.TURNO = TURNO;
     NewReg.PERIODO = PERIODO;
     NewReg.PLANTEL = PLANTEL;
-    NewReg.Status = Status||true;
     const registered = await NewReg.save();
     if(registered){
       BitacoraController.registrar("registro al aspirante con id: " + registered._id, req.usuario.id);
@@ -77,7 +76,7 @@ async function update(req, res){
   req.body.GRUPO = req.body.GRUPO?req.body.GRUPO:null;
   const updated = await Modelo.findByIdAndUpdate(_id,req.body);
   if(updated){
-    BitacoraController.registrar("Modifico al aspirante con id: " + updated._id, req.usuario.id);
+    BitacoraController.registrar("registro al aspirante con id: " + updated._id, req.usuario.id);
     await CandidatosController.Print(req,res,updated.CURP);
   }
   return res.status(200).json(updated);
@@ -95,21 +94,12 @@ async function del(req, res){
 
 async function readCURP(req, res) {
   const { CURP } = req.params;
-  const Find = await Modelo.findOne({ CURP: CURP })
-    .populate( { path: "CANDIDATO" } );
+  const Find = await Modelo.findOne({ CURP: CURP });
   
   if(Find)
     return res.status(200).json(Find);
   
   return res.status(204).json();
-}
-
-
-async function readDisponibles  (req, res) {
-  const SORT = { sort: [['ASPIRANTE.PLANTEL.Nombre', 'asc']] };
-  
-  const all = await Modelo.find();
-  return res.status(200).json(all);
 }
 
 module.exports={
@@ -119,6 +109,5 @@ module.exports={
   readCURP,
   update,
   del,
-  sendPDF,
-  readDisponibles
+  sendPDF
 }

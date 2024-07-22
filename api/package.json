@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js",
-    "start:dev": "cross-env NODE_ENV=development node index.js",
+    "start:dev": "cross-env NODE_ENV=development nodemon index.js",
     "start:prod": "cross-env NODE_ENV=production node index.js",
     "start:test": "cross-env NODE_ENV=test node index.js"
   },
@@ -24,6 +24,9 @@
     "moment": "^2.29.4",
     "mongoose": "^7.2.4",
     "ng-angular-popup": "^0.4.7",
-    "puppeteer": "^22.4.1"
+    "puppeteer": "^18.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.3"
   }
 }

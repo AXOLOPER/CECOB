@@ -9,7 +9,7 @@ const nivelSchema = new mongoose.Schema({
 const entidadFederativaSchema = new mongoose.Schema({
   _id:{type:mongoose.Types.ObjectId,auto:true},
   Nombre:{type:String},
-  Abrebiacion:{type:String},
+  Abreviacion:{type:String},
   Status:{type:Boolean,default:true}
 });
 

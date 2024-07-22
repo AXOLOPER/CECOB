@@ -10,6 +10,7 @@ const path = require('path');
 async function create(req, res) {
   try {
     const NewReg = new Modelo(req.body);
+    NewReg.Status = true;
     await NewReg.save();
     if (NewReg) {
       BitacoraController.registrar("registro al prospecto con id: " + NewReg.id);
@@ -768,16 +769,16 @@ async function Print(req, res, CURP) {
   const status = npage.status();
   
   if (status == 404) {
-    return res.status(404).send("Alumno no encontrado!");
+    //return res.status(404).send("Alumno no encontrado!");
   }
   
   if (status == 403) {
-    return res.status(403).send("Datos del alumno incompletos!");
+    //return res.status(403).send("Datos del alumno incompletos!");
   }
   
   const imgs = await page.$$eval('.imagen img', images => images.map(i => i.src))
   if (imgs.length == 0) {
-    return res.status(500).send("Error desconocido, comuniquese con el administrador!");
+    //return res.status(500).send("Error desconocido, comuniquese con el administrador!");
   }
 
   //const PNGPATH = path.join(__dirname, '..' + "/PNGS/" + CURP + ".png");

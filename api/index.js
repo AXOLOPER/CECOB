@@ -18,8 +18,13 @@ const gradoRoute = require('./routes/grado.routes');
 const grupoRoute = require('./routes/grupo.routes');
 const turnoRoute = require('./routes/turno.routes');
 const plantelRoute = require('./routes/plantel.routes');
+const cobranzaRoute = require('./routes/cobranza.routes');
+const alumnosRoute = require('./routes/alumnos.routes');
+
+const licenciasRoute = require('./routes/licencias.routes');
 
 const Usuario = require('./models/usuarios.model');
+const AlumnoAc = require('./models/alumnosAc.model');
 const { PORT, DBLINK, API, HOST, APIHOST } = require("./config");
 const path = require('path');
 
@@ -48,7 +53,12 @@ app.use(api+'/turnos',turnoRoute);
 app.use(api+'/planteles',plantelRoute);
 app.use(api+'/candidatos',candidatosRoute);
 app.use(api+'/aspirantes',aspirantesRoute);
-app.use(api+'/aperturas',aperturasRoute);
+app.use(api + '/aperturas', aperturasRoute);
+
+app.use(api+'/licencias',licenciasRoute);
+
+app.use(api+'/cobranza',cobranzaRoute);
+app.use(api+'/alumnos',alumnosRoute);
 
 // The secret should be an unguessable long string (you can use a password generator for this!)
 const JWT_SECRET ="goK!pusp6ThEdURUtRenOwUhAsWUCLheBazl!uJLPlS8EbreWLdrupIwabRAsiBu";
@@ -59,24 +69,28 @@ app.post(api+"/authenticate",async (req, res) => {
   const secret  = req.body.Secret;
   console.log(`${usuario} is trying to login ...`);
 
-  const U = await Usuario.findOne({Usuario:usuario, estado:true});
-  if(!U){
-    return res
-    .status(401)
-    .json({ message: "The username and password your provided are invalid" });
+  const U = await Usuario.findOne({ Usuario: usuario, estado: true });
+  
+  const A = await  AlumnoAc.findOne({ Matricula: usuario });
+  
+  if(!U&&!A){
+    return res.status(404)
+    .json({
+      message: "El usuario y contraseña son incorrectos"
+    });
   }
 
-  const valid = await bcrypt.compare(secret,U.Secret);
+  const valid = await bcrypt.compare(secret,(U?.Secret||A?.Nuuts));
   if(!valid){
     return res.status(401)
     .json({
-      message: "The username and password your provided are invalid"
+      message: "El usuario y contraseña son incorrectos"
     });
   }
     
   console.log(`${usuario} has loggedin successfully ..`);
   return res.status(200).json({
-    token: jwt.sign({exp: Math.floor(Date.now() / 1000) + (60 * 60 * 10),data:{ user: U.Usuario, privilegios:U.privilegios, id:U._id }}, JWT_SECRET),
+    token: jwt.sign({exp: Math.floor(Date.now() / 1000) + (60 * 60 * 10),data:{ user: (U?.Usuario||A?.Matricula), privilegios:(U?.privilegios||A?.privilegios), id:(U?._id||A?._id) }}, JWT_SECRET),
     message: `${usuario} has loggedin successfully ..`
   });
 });

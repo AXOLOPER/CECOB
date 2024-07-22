@@ -1,6 +1,6 @@
 const express = require('express');
 var md_auth = require('../middleware/authenticated');
-const Controller = require("../controllers/aspirantes.controller");
+const Controller = require("../controllers/cobranza.controller");
 
 const api = express.Router();
 
@@ -11,7 +11,7 @@ const api = express.Router();
     api.post("/PDF",Controller.sendPDF);
 
     // Ruta de Consulta inicial
-    api.get("/", md_auth.ensureAuth, Controller.readAll);
+    api.get("/inscripciones/",md_auth.ensureAuth,Controller.readAll);
 
     // Ruta de Consulta particular
     api.get("/:id",md_auth.ensureAuth,Controller.read1);
@@ -23,6 +23,6 @@ const api = express.Router();
     api.delete("/:id", md_auth.ensureAuth, Controller.del);
     
     // Ruta de Inscripcion
-    api.post("/CURP/:CURP",Controller.readCURP);
+    //api.post("/cobranza/inscripciones",Controller.readCURP);
 
 module.exports = api;
