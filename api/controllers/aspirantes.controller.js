@@ -6,7 +6,7 @@ const path = require('path');
 
 async function create(req, res) {
   try {
-    const {CURP,CARRERA,GRADO,GRUPO,TURNO,PERIODO,PLANTEL,Status} = req.body;
+    const {CURP,CARRERA,GRADO,GRUPO,TURNO,PERIODO,PLANTEL,Status, Inscrito} = req.body;
     let candidato = await Candidato.findOne({CURP:CURP});
     const NewReg = new Modelo();
     NewReg.CURP = CURP;
@@ -18,6 +18,7 @@ async function create(req, res) {
     NewReg.PERIODO = PERIODO;
     NewReg.PLANTEL = PLANTEL;
     NewReg.Status = Status||true;
+    NewReg.Inscrito = Inscrito;
     const registered = await NewReg.save();
     if(registered){
       BitacoraController.registrar("registro al aspirante con id: " + registered._id, req.usuario.id);
@@ -40,7 +41,10 @@ async function readAll  (req, res) {
   .populate("TURNO")
   .populate("PERIODO")
   .populate("PLANTEL")
-  .sort("CARRERA.Abreviatura");
+    .sort("CARRERA.Nombre")
+    .sort("GRADO.Numero")
+    .sort("GRUPO.Nombre")
+    .sort("TURNO.Nombre");
   return res.status(200).json(all);
 }
 

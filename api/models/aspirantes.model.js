@@ -80,7 +80,7 @@ const aspirantesSchema = new mongoose.Schema({
   },
   Inscrito: { type: Boolean, default: false },
   Status: { type: Boolean, default: true },
-},{timestamps:true});
+}, { timestamps: true });
 
 const Aspirantes = mongoose.model('Aspirantes', aspirantesSchema);
 

@@ -119,10 +119,13 @@ async function Acuerdo(req, res) {
                 .populate("PERIODO")
                 .populate("PLANTEL");
   
+    if (!Data) { 
+      return;
+    }
+  
     const name = "SOLICITUD DE INSCRIPCION";
   
     const {
-      createdAt,
       CARRERA,
       GRADO,
       GRUPO,
@@ -133,12 +136,11 @@ async function Acuerdo(req, res) {
       DOCUMENTOS,
       Status
     } = Data;
+    
+  const createdAt = Data.createdAt ? Data.createdAt : Date.now();
 
   PLANTEL = Data.PLANTEL ? Data.PLANTEL : { Nombre: "  " };
   
-    if (!Data) { 
-      return;
-    }
     var today = createdAt ? new Date(createdAt) : new Date();
     var birthday = CANDIDATO.FNac ? new Date(CANDIDATO.FNac) : new Date();
     //Restamos los años
@@ -521,7 +523,7 @@ async function Acuerdo(req, res) {
         </tr>
         <tr>
           <td colspan="3">
-            En caso de emergencia avisar a:<br />
+            Contacto de emergencia:<br />
             ${CANDIDATO.EmergenciaNombre}
           </td>
           <td></td>
