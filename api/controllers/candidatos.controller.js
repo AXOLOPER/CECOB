@@ -10,6 +10,7 @@ const path = require('path');
 async function create(req, res) {
   try {
     const NewReg = new Modelo(req.body);
+    NewReg.Status = true;
     await NewReg.save();
     if (NewReg) {
       BitacoraController.registrar("registro al prospecto con id: " + NewReg.id);
@@ -118,10 +119,13 @@ async function Acuerdo(req, res) {
                 .populate("PERIODO")
                 .populate("PLANTEL");
   
+    if (!Data) { 
+      return;
+    }
+  
     const name = "SOLICITUD DE INSCRIPCION";
   
     const {
-      createdAt,
       CARRERA,
       GRADO,
       GRUPO,
@@ -132,12 +136,11 @@ async function Acuerdo(req, res) {
       DOCUMENTOS,
       Status
     } = Data;
+    
+  const createdAt = Data.createdAt ? Data.createdAt : Date.now();
 
   PLANTEL = Data.PLANTEL ? Data.PLANTEL : { Nombre: "  " };
   
-    if (!Data) { 
-      return;
-    }
     var today = createdAt ? new Date(createdAt) : new Date();
     var birthday = CANDIDATO.FNac ? new Date(CANDIDATO.FNac) : new Date();
     //Restamos los años
@@ -520,7 +523,7 @@ async function Acuerdo(req, res) {
         </tr>
         <tr>
           <td colspan="3">
-            En caso de emergencia avisar a:<br />
+            Contacto de emergencia:<br />
             ${CANDIDATO.EmergenciaNombre}
           </td>
           <td></td>
@@ -768,16 +771,16 @@ async function Print(req, res, CURP) {
   const status = npage.status();
   
   if (status == 404) {
-    return res.status(404).send("Alumno no encontrado!");
+    //return res.status(404).send("Alumno no encontrado!");
   }
   
   if (status == 403) {
-    return res.status(403).send("Datos del alumno incompletos!");
+    //return res.status(403).send("Datos del alumno incompletos!");
   }
   
   const imgs = await page.$$eval('.imagen img', images => images.map(i => i.src))
   if (imgs.length == 0) {
-    return res.status(500).send("Error desconocido, comuniquese con el administrador!");
+    //return res.status(500).send("Error desconocido, comuniquese con el administrador!");
   }
 
   //const PNGPATH = path.join(__dirname, '..' + "/PNGS/" + CURP + ".png");

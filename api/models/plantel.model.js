@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const plantelSchema = new mongoose.Schema({
+  Clave:{type:String},
   Nombre:{type:String},
   Abreviatura:{type:String},
   Direccion:{type:String},

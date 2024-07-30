@@ -51,8 +51,7 @@ const usuariosSchema = new mongoose.Schema({
         update:{ type:Boolean },
         delete:{ type:Boolean }
       }
-    },
-    ALUMNOS:{ type:Boolean }
+    }
   }
 });
 

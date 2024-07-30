@@ -1,15 +1,14 @@
-const {Grupo} = require('../models/grupo.model');
-const Modelo = Grupo;
-const text = "El grupo"
+const {Licencia} = require('../models/licencias.model');
+const Modelo = Licencia;
+const text = "la licencia"
 const BitacoraController = require("./bitacora.controller");
 
 async function create(req, res) {
   try {
     const nuevo = new Modelo(req.body);
-    nuevo.Clave = nuevo.Nombre;
     const saved = await nuevo.save();
   if(saved){
-      BitacoraController.registrar("registró "+text+" "+saved.Nombre+" con id: "+saved.id, req.usuario.id);
+      BitacoraController.registrar("registró "+text+" "+saved.usuario+" con id: "+saved.id, req.usuario.id);
     }
     res.status(201).json(saved);
   } catch (error) {
@@ -32,7 +31,6 @@ async function read1(req, res){
 async function update(req, res){
   try {
     const id = req.body._id;
-    req.body.Clave = req.body.Nombre;
     const updated = await Modelo.findByIdAndUpdate(id, req.body);
   if(updated){
       BitacoraController.registrar("actualizó "+text+" con id: "+updated.id, req.usuario.id);
@@ -59,10 +57,32 @@ async function del(req, res){
   }
 }
 
+async function loan(req, res) {
+  const usuario = req.usuario.id;
+  let currentDate = new Date();
+
+  let updated = await Modelo.findOneAndUpdate({ fechaF: { $lt: currentDate } }, { fechaI: null, fechaF: null, Status: false,prestado:null},{new:true})
+
+  let found = await Modelo.findOne({
+    prestado: usuario
+  });
+
+  if (!found) {
+    found = await Modelo.findOneAndUpdate({ Status: false },{fechaI:currentDate,fechaF:new Date(Date.now()+(7*24*60*60*1000)),Status:true,prestado:usuario},{new:true});
+  }
+
+  if (!found) {
+    found = {usuario:"NO HAY LICENCIAS DISPONIBLES",pass:"",}
+  }
+
+  return res.status(200).json(found);
+}
+
 module.exports={
   create,
   readAll,
   read1,
   update,
-  del
+  del,
+  loan
 }

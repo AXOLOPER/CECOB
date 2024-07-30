@@ -20,10 +20,11 @@ const turnoRoute = require('./routes/turno.routes');
 const plantelRoute = require('./routes/plantel.routes');
 const cobranzaRoute = require('./routes/cobranza.routes');
 const alumnosRoute = require('./routes/alumnos.routes');
-const licenciasRoute = require('./routes/licencia.routes');
+
+const licenciasRoute = require('./routes/licencias.routes');
 
 const Usuario = require('./models/usuarios.model');
-const Alumnos = require('./models/alumnos.model');
+const AlumnoAc = require('./models/alumnosAc.model');
 const { PORT, DBLINK, API, HOST, APIHOST } = require("./config");
 const path = require('path');
 
@@ -54,10 +55,10 @@ app.use(api+'/candidatos',candidatosRoute);
 app.use(api+'/aspirantes',aspirantesRoute);
 app.use(api + '/aperturas', aperturasRoute);
 
+app.use(api+'/licencias',licenciasRoute);
 
 app.use(api+'/cobranza',cobranzaRoute);
 app.use(api+'/alumnos',alumnosRoute);
-app.use(api+'/licencias',licenciasRoute);
 
 // The secret should be an unguessable long string (you can use a password generator for this!)
 const JWT_SECRET ="goK!pusp6ThEdURUtRenOwUhAsWUCLheBazl!uJLPlS8EbreWLdrupIwabRAsiBu";
@@ -68,9 +69,9 @@ app.post(api+"/authenticate",async (req, res) => {
   const secret  = req.body.Secret;
   console.log(`${usuario} is trying to login ...`);
 
-  let U = await Usuario.findOne({ Usuario: usuario, estado: true });
+  const U = await Usuario.findOne({ Usuario: usuario, estado: true });
   
-  const A = await  Alumnos.findOne({ Matricula: usuario }).populate({path:'ASPIRANTE',populate:{path:'CANDIDATO'}});
+  const A = await  AlumnoAc.findOne({ Matricula: usuario });
   
   if(!U&&!A){
     return res.status(404)
@@ -78,18 +79,8 @@ app.post(api+"/authenticate",async (req, res) => {
       message: "El usuario y contraseña son incorrectos"
     });
   }
-  if (!U && A) {
-    const Secret = "Gorey2024";
-    const hashedPassword = await bcrypt.hash(Secret, 10);
-    const N = new Usuario({Nombre:A.ASPIRANTE.CANDIDATO.Nombres, Usuario: usuario, Secret: hashedPassword, privilegios: { ALUMNOS: true } });
-    const newUser = await N.save();
-    if (newUser) {
-      BitacoraController.registrar("creo al usuario: "+newUser.Usuario+", con ID: "+newUser._id, newUser._id);
-    }
-    U = await Usuario.findOne({ Usuario: usuario, estado:true });
-  }
 
-  const valid = await bcrypt.compare(secret,U.Secret);
+  const valid = await bcrypt.compare(secret,(U?.Secret||A?.Nuuts));
   if(!valid){
     return res.status(401)
     .json({
@@ -99,7 +90,7 @@ app.post(api+"/authenticate",async (req, res) => {
     
   console.log(`${usuario} has loggedin successfully ..`);
   return res.status(200).json({
-    token: jwt.sign({exp: Math.floor(Date.now() / 1000) + (60 * 60 * 10),data:{ user: (U.Usuario||A.Matricula), privilegios:(U.privilegios||A.privilegios), id:(U._id||A._id) }}, JWT_SECRET),
+    token: jwt.sign({exp: Math.floor(Date.now() / 1000) + (60 * 60 * 10),data:{ user: (U?.Usuario||A?.Matricula), privilegios:(U?.privilegios||A?.privilegios), id:(U?._id||A?._id) }}, JWT_SECRET),
     message: `${usuario} has loggedin successfully ..`
   });
 });

@@ -4,7 +4,9 @@ async function verAll(req,res){
     if(!req.usuario.privilegios.admin.bitacora.read){
         return res.status(401).json({ message: "No tiene permiso para realizar esa operacion!" });
     }
-    const allBitacora = await Bitacora.find().populate('usuario');
+    const allBitacora = await Bitacora.find()
+        .populate('usuario')
+        .sort({'createdAt':-1});
     return res.status(200).json(allBitacora);
 }
 
